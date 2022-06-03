@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Pyodide Webworker Console</title>
+</head>
+
+<body>
+  <div id="fig1"></div>
+
+  <script type="module">
+    import {
+      Execution,
+      initializePyodide
+    } from "./pyodide-main.js";
+    let value = null;
+
+    function timeout(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function stdinCallback(data) {
+      setTimeout(() => {
+        value = 'continue';
+      }, 10000);
+      while (value === null) {
+        await timeout(1000);
+      }
+      return 'continue';
+    }
+
+    async function stdoutCallback(data) {
+      console.log(data);
+    }
+
+    async function stderrCallback(data) {
+      console.log(data);
+    }
+
+
+    async function init() {
+      await initializePyodide();
+    }
+
+    async function runCode(code) {
+      console.log("starting")
+      const execution = await new Execution(code);
+      await execution.onStdin(stdinCallback);
+      await execution.onStdout(stdoutCallback);
+      await execution.onStderr(stderrCallback);
+      execution.start();
+      try {
+        await execution.validate_syntax();
+      } catch (e) {
+        term.error(e.message);
+        return;
+      }
+    }
+
+    window.init = init;
+    window.runCode = runCode;
+
+  </script>
+</body>
+
+</html>
