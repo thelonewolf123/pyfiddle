@@ -1,15 +1,18 @@
 <template>
   <div class="ide-main-content">
-    <!-- <div class="top-bar">
-
-        </div> -->
     <div class="content-area">
       <side-bar-vue style="width: 350px"></side-bar-vue>
-      <monaco-editor-vue
-        style="width: calc(100% - 350px)"
-        :code="fileContent"
-        @codeChanged="codeChanged"
-      ></monaco-editor-vue>
+      <div class="editor-output-view">
+        <file-titles-vue :files="['main.py']"></file-titles-vue>
+        <monaco-editor-vue
+          style="width: 100%; height: calc(100vh - 350px)"
+          :code="fileContent"
+          language="python"
+          theme="vs-dark"
+          @codeChanged="codeChanged"
+        ></monaco-editor-vue>
+        <output-view-vue></output-view-vue>
+      </div>
     </div>
   </div>
 </template>
@@ -17,10 +20,14 @@
 <script>
 import MonacoEditorVue from "./MonacoEditor.vue";
 import SideBarVue from "./SideBar.vue";
+import OutputViewVue from "./output/OutputView.vue";
+import FileTitlesVue from "./side-bar/FileTitles.vue";
 export default {
   components: {
     MonacoEditorVue,
     SideBarVue,
+    OutputViewVue,
+    FileTitlesVue,
   },
   data() {
     return {
@@ -60,5 +67,13 @@ export default {
 .top-bar {
   background: rgb(155, 155, 155);
   height: 20px;
+}
+
+.editor-output-view {
+  height: 100vh;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  overflow: hidden;
 }
 </style>

@@ -1,7 +1,5 @@
 <template>
-  <div id="app" style="width: 100%" :style="editorHeight">
-    <div ref="editor" style="width: 100%" :style="editorHeight"></div>
-  </div>
+  <div ref="editor"></div>
 </template>
 
 <script>
@@ -21,27 +19,18 @@ export default {
       type: String,
       default: "vs-dark",
     },
-    height: {
-      type: String,
-      default: "100%",
-    },
   },
 
   async mounted() {
     const el = this.$refs.editor;
     window.editor = monaco.editor.create(el, {
       value: this.code,
-      language: "python",
-      theme: "vs-dark",
+      language: this.language,
+      theme: this.theme,
     });
     window.editor.onDidChangeModelContent(() => {
       this.$emit("codeChanged", window.editor.getValue());
     });
-  },
-  data() {
-    return {
-      editorHeight: { height: "100vh" },
-    };
   },
 };
 </script>

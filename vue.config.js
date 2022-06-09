@@ -10,7 +10,7 @@ let config = defineConfig({
 let vuetifyConfig = {
   configureWebpack: {
     plugins: [
-      new VuetifyLoaderPlugin()
+      new VuetifyLoaderPlugin(),
     ],
     devServer: {
       headers: {

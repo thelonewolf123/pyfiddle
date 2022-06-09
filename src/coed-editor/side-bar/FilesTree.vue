@@ -1,10 +1,10 @@
 <template>
   <div class="file-tree-view">
     <div class="file-actions-bar">
-      <v-icon dark class="pointer icon-class" @click="executeCode">
+      <!-- <v-icon dark class="pointer icon-class" @click="executeCode">
         fa-solid fa-play
       </v-icon>
-      <v-icon dark class="pointer icon-class"> fa-solid fa-bug </v-icon>
+      <v-icon dark class="pointer icon-class"> fa-solid fa-bug </v-icon> -->
       <v-icon dark class="pointer icon-class">
         fa-solid fa-file-circle-plus
       </v-icon>
@@ -51,11 +51,6 @@
         </v-icon>
       </template>
     </v-treeview>
-    <iframe
-      src="/python.html"
-      style="height: 0px; width: 0px"
-      frameborder="0"
-    ></iframe>
   </div>
 </template>
 
@@ -109,6 +104,7 @@ export default {
     showSearchBar: false,
     search: null,
     caseSensitive: false,
+    inputValue: null,
   }),
   mounted() {
     setTimeout(this.initListerner, 3000);
@@ -120,21 +116,6 @@ export default {
           item.content = content;
         }
         return item;
-      });
-    },
-    async executeCode() {
-      console.log("execute code");
-      let iframe = document.querySelector("iframe");
-      iframe.contentWindow.runCode(this.activeFileContents);
-    },
-    initListerner() {
-      let iframe = document.querySelector("iframe");
-      iframe.contentWindow.init();
-
-      window.editor.onDidChangeModelContent(() => {
-        if (this.activeItems.length === 0) return;
-
-        this.updateFileContents(this.activeItems[0], window.editor.getValue());
       });
     },
   },
@@ -153,12 +134,15 @@ export default {
 .file-actions-bar {
   background: #222;
   padding: 10px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
 
 .icon-class {
-  margin: 5px 15px;
+  margin: 0px 15px;
+  cursor: pointer;
+  font-size: 1rem !important;
 }
 </style>
