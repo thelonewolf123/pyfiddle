@@ -3,13 +3,24 @@
     <div class="control-bar">
       <v-icon
         dark
+        v-if="!isCodeRunnig"
         class="pointer icon-class"
         @click="runCode"
         :disabled="!isInterpreterReady"
       >
         fa-solid fa-play
       </v-icon>
-      <v-icon dark class="pointer icon-class"> fa-solid fa-bug </v-icon>
+      <v-icon
+        v-show="isCodeRunnig"
+        dark
+        class="pointer icon-class"
+        @click="stopExecution"
+      >
+        fa-solid fa-stop
+      </v-icon>
+      <v-icon dark class="pointer icon-class" :disabled="true">
+        fa-solid fa-bug
+      </v-icon>
     </div>
     <div class="output-section">
       <div class="output" :key="index" v-for="(out, index) in output">
@@ -31,6 +42,8 @@
 
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data() {
     return {
@@ -44,7 +57,17 @@ export default {
       interruptBuffer: null,
       inputFlagBuffer: null,
       inputValueBuffer: null,
+      isCodeRunnig: false,
     };
+  },
+  computed: {
+    ...mapGetters(["getActiveFile", "getActiveFileContent"]),
+    fileContent() {
+      return this.getActiveFileContent;
+    },
+    fileName() {
+      return this.getActiveFile;
+    },
   },
   mounted() {
     this.init();
@@ -88,14 +111,13 @@ export default {
             inputValueBuffer: this.inputValueBuffer,
           });
         } else if (e.data.cmd === "stdout") {
-          console.log("python-output : ", e.data.data);
           this.output.push(e.data.data);
         } else if (e.data.cmd === "stderr") {
-          console.log("python-error : ", e.data.data);
         } else if (e.data.cmd === "stdin") {
-          console.log("python waiting for input...");
           // convert string to shared memory
           this.showInput = true;
+        } else if (e.data.cmd === "done") {
+          this.isCodeRunnig = false;
         }
       };
     },
@@ -107,8 +129,9 @@ export default {
       console.log("Running code in worker...");
       this.pyodideWorker.postMessage({
         cmd: "runCode",
-        code: window.editor.getValue(),
+        code: this.fileContent,
       });
+      this.isCodeRunnig = true;
     },
     submitInput() {
       let inputValue = this.inputValue;
@@ -125,6 +148,10 @@ export default {
       Atomics.store(this.inputFlagBuffer, 0, 0);
       // wake up python
       Atomics.notify(this.inputFlagBuffer, 0, 1);
+    },
+    stopExecution() {
+      // set interupt buffer to 2 to stop execution
+      this.interruptBuffer[0] = 2;
     },
   },
 };

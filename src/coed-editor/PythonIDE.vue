@@ -22,6 +22,8 @@ import MonacoEditorVue from "./MonacoEditor.vue";
 import SideBarVue from "./SideBar.vue";
 import OutputViewVue from "./output/OutputView.vue";
 import FileTitlesVue from "./side-bar/FileTitles.vue";
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   components: {
     MonacoEditorVue,
@@ -29,28 +31,25 @@ export default {
     OutputViewVue,
     FileTitlesVue,
   },
-  data() {
-    return {
-      fileName: "main.py",
-      fileContent: "print('hello from script')",
-    };
+  computed: {
+    ...mapGetters(["getActiveFile", "getActiveFileContent"]),
+    fileName() {
+      return this.getActiveFile;
+    },
+    fileContent() {
+      return this.getActiveFileContent;
+    },
   },
   mounted() {
-    window.addEventListener("fileChanged", (event) => {
-      this.fileName = event.detail.fileName;
-      this.sourceCode = event.detail.fileContent;
-    });
+    let fileSystem = window.localStorage.getItem("fileSystem");
+    if (fileSystem) {
+      this.initFileSystem(JSON.parse(fileSystem));
+    }
   },
   methods: {
+    ...mapActions(["changeActiveFileContent", "initFileSystem"]),
     codeChanged(newCode) {
-      this.fileContent = newCode;
-      let event = new CustomEvent("fileChanged", {
-        detail: {
-          fileName: this.fileName,
-          fileContent: this.fileContent,
-        },
-      });
-      window.dispatchEvent(event);
+      this.changeActiveFileContent(newCode);
     },
   },
 };

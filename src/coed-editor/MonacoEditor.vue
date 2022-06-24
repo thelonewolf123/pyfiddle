@@ -20,7 +20,13 @@ export default {
       default: "vs-dark",
     },
   },
-
+  watch: {
+    code(newVal) {
+      if (newVal && window.editor) {
+        window.editor.setValue(newVal);
+      }
+    },
+  },
   async mounted() {
     const el = this.$refs.editor;
     window.editor = monaco.editor.create(el, {

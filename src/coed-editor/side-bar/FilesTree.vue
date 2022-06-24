@@ -5,7 +5,11 @@
         fa-solid fa-play
       </v-icon>
       <v-icon dark class="pointer icon-class"> fa-solid fa-bug </v-icon> -->
-      <v-icon dark class="pointer icon-class">
+      <v-icon
+        dark
+        class="pointer icon-class"
+        @click="showFileCreateDialog = !showFileCreateDialog"
+      >
         fa-solid fa-file-circle-plus
       </v-icon>
       <v-icon
@@ -32,7 +36,7 @@
     <v-treeview
       v-model="tree"
       :open="initiallyOpen"
-      :items="items"
+      :items="getFileSystem"
       :search="search"
       :filter="filter"
       :case-sensitive="caseSensitive"
@@ -51,10 +55,34 @@
         </v-icon>
       </template>
     </v-treeview>
+    <v-dialog v-model="showFileCreateDialog" width="500" attach="body">
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Create File
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            label="File name"
+            v-model="fileName"
+            hide-details="auto"
+          ></v-text-field>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="addNewFile"> Save </v-btn>
+          <v-btn text @click="showFileCreateDialog = false"> Cancel </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
   computed: {
     filter() {
@@ -62,20 +90,11 @@ export default {
         ? (item, search, textKey) => item[textKey].indexOf(search) > -1
         : undefined;
     },
-    activeFileContents() {
-      if (this.activeItems.length === 0) return "";
-      return this.items.find((item) => item.name === this.activeItems[0])
-        .content;
-    },
+    ...mapGetters(["getFileSystem"]),
   },
   watch: {
-    activeItems(val) {
-      console.log(val);
-
-      if (val.length === 0) return;
-      if (!window.editor) return;
-
-      window.editor.setValue(this.activeFileContents);
+    activeItems(newVal) {
+      if (newVal && newVal.length > 0) this.changeActiveFile(newVal[0]);
     },
   },
   data: () => ({
@@ -94,29 +113,24 @@ export default {
     iframe: null,
     tree: [],
     activeItems: ["main.py"],
-    items: [
-      {
-        name: "main.py",
-        content: "print('hello from script')",
-        file: "py",
-      },
-    ],
     showSearchBar: false,
     search: null,
     caseSensitive: false,
     inputValue: null,
+    showFileCreateDialog: false,
+    fileName: "",
   }),
-  mounted() {
-    setTimeout(this.initListerner, 3000);
-  },
   methods: {
-    updateFileContents(file, content) {
-      this.items = this.items.map((item) => {
-        if (item.name === file) {
-          item.content = content;
-        }
-        return item;
-      });
+    ...mapActions(["addFile", "changeActiveFile"]),
+    addNewFile() {
+      let fileObj = {
+        name: this.fileName,
+        content: "",
+        file: "py",
+      };
+      this.addFile(fileObj);
+      this.showFileCreateDialog = false;
+      this.fileName = "";
     },
   },
 };

@@ -13,6 +13,7 @@ const stdinCallback = () => {
 
     while (self.inputFlagBuffer[0] === 1) {
         Atomics.wait(self.inputFlagBuffer, 0, 0, 200);
+        self.pyodide.checkInterrupt();
     }
     // convert shared memory to a string
     let input = String.fromCharCode.apply(null, new Uint8Array(self.inputValueBuffer));
@@ -53,19 +54,24 @@ const initPyiodide = () => {
 onmessage = (msg) => {
     if (msg.data.cmd === "init") {
         initPyiodide();
-        return;
-    }
-    if (msg.data.cmd === "setInterruptBuffer") {
+
+    } else if (msg.data.cmd === "setInterruptBuffer") {
         self.pyodide.setInterruptBuffer(msg.data.interruptBuffer);
-        return;
-    }
-    if (msg.data.cmd === "runCode") {
-        self.pyodide.runPython(msg.data.code);
-        return;
-    }
-    if (msg.data.cmd === "setInputBuffer") {
+
+    } else if (msg.data.cmd === "runCode") {
+        self.pyodide.runPythonAsync(msg.data.code).then(() => {
+            postMessage({
+                cmd: "done"
+            });
+        }).catch(err => {
+            console.log(err);
+            postMessage({
+                cmd: "done"
+            });
+        });
+
+    } else if (msg.data.cmd === "setInputBuffer") {
         self.inputFlagBuffer = msg.data.inputFlagBuffer
         self.inputValueBuffer = msg.data.inputValueBuffer
-        return;
     }
 };
