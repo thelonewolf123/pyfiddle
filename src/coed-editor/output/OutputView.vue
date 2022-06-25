@@ -21,6 +21,9 @@
       <v-icon dark class="pointer icon-class" :disabled="true">
         fa-solid fa-bug
       </v-icon>
+      <v-icon dark class="pointer icon-class" @click="clearOutput">
+        fas fa-eraser
+      </v-icon>
     </div>
     <div class="output-section">
       <div class="output" :key="index" v-for="(out, index) in output">
@@ -61,12 +64,37 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["getActiveFile", "getActiveFileContent"]),
+    ...mapGetters([
+      "getActiveFile",
+      "getActiveFileContent",
+      "getFileSystem",
+      "getDependencies",
+    ]),
     fileContent() {
       return this.getActiveFileContent;
     },
     fileName() {
       return this.getActiveFile;
+    },
+    dependencies() {
+      return this.getDependencies;
+    },
+  },
+  watch: {
+    dependencies(newVal) {
+      if (
+        newVal &&
+        newVal.length > 0 &&
+        this.pyodideWorker &&
+        this.isInterpreterReady
+      ) {
+        let lastPackage = newVal[newVal.length - 1];
+        this.pyodideWorker.postMessage({
+          cmd: "installPackage",
+          packageName: lastPackage.packageName,
+        });
+        this.isCodeRunnig = true;
+      }
     },
   },
   mounted() {
@@ -77,7 +105,6 @@ export default {
     this.pyodideWorker.terminate();
   },
   methods: {
-    async executeCode() {},
     init() {
       this.output = [];
       this.showInput = false;
@@ -96,8 +123,6 @@ export default {
 
       this.pyodideWorker.onmessage = (e) => {
         if (e.data.cmd === "ready") {
-          this.isInterpreterReady = true;
-
           this.inputFlagBuffer[0] = 0;
           this.interruptBuffer[0] = 0;
 
@@ -110,6 +135,15 @@ export default {
             inputFlagBuffer: this.inputFlagBuffer,
             inputValueBuffer: this.inputValueBuffer,
           });
+          this.dependencies.forEach((dep) => {
+            this.isCodeRunnig = true;
+            this.pyodideWorker.postMessage({
+              cmd: "installPackage",
+              packageName: dep.packageName,
+            });
+          });
+
+          this.isInterpreterReady = true;
         } else if (e.data.cmd === "stdout") {
           this.output.push(e.data.data);
         } else if (e.data.cmd === "stderr") {
@@ -121,15 +155,39 @@ export default {
         }
       };
     },
+    getFileSysObject(fileSystem, activeFileName, activeFileContent) {
+      let fileSystemCopy = JSON.parse(JSON.stringify(fileSystem));
+      fileSystemCopy = fileSystemCopy.filter((f) => f.name !== activeFileName);
+      let newFileSystemObj = {
+        mainFile: {
+          name: activeFileName,
+          content: activeFileContent,
+          path: activeFileName,
+        },
+        projectFiles: [],
+      };
+
+      newFileSystemObj.projectFiles = fileSystemCopy.map((f) => {
+        f.path = f.name;
+        return f;
+      });
+
+      return newFileSystemObj;
+    },
     async runCode() {
       // Clear interruptBuffer in case it was accidentally left set after previous code completed.
       this.interruptBuffer[0] = 0;
       this.output = [];
       // Run code in worker.
       console.log("Running code in worker...");
+
       this.pyodideWorker.postMessage({
         cmd: "runCode",
-        code: this.fileContent,
+        files: this.getFileSysObject(
+          this.getFileSystem,
+          this.getActiveFile,
+          this.getActiveFileContent
+        ),
       });
       this.isCodeRunnig = true;
     },
@@ -153,6 +211,9 @@ export default {
       // set interupt buffer to 2 to stop execution
       this.interruptBuffer[0] = 2;
     },
+    clearOutput() {
+      this.output = [];
+    },
   },
 };
 </script>
@@ -174,7 +235,7 @@ export default {
   font-size: 16px;
   font-weight: 600;
   padding: 10px;
-  margin-bottom: 25px;
+  padding-bottom: 100px;
 }
 .control-bar {
   display: flex;

@@ -90,15 +90,23 @@ export default {
         ? (item, search, textKey) => item[textKey].indexOf(search) > -1
         : undefined;
     },
-    ...mapGetters(["getFileSystem"]),
+    ...mapGetters(["getFileSystem", "getActiveFile"]),
   },
   watch: {
     activeItems(newVal) {
       if (newVal && newVal.length > 0) this.changeActiveFile(newVal[0]);
     },
+    getActiveFile(newVal) {
+      if (newVal) {
+        this.activeItems = [newVal];
+      }
+    },
+  },
+  mounted() {
+    this.activeItems = [this.getActiveFile];
   },
   data: () => ({
-    initiallyOpen: ["public"],
+    initiallyOpen: [],
     files: {
       html: "mdi-language-html5",
       js: "mdi-nodejs",
@@ -112,7 +120,7 @@ export default {
     },
     iframe: null,
     tree: [],
-    activeItems: ["main.py"],
+    activeItems: [],
     showSearchBar: false,
     search: null,
     caseSensitive: false,
@@ -138,7 +146,7 @@ export default {
 
 <style>
 .file-tree-view {
-  height: 100vh;
+  height: 50vh;
   background: #444;
 }
 
@@ -158,5 +166,9 @@ export default {
   margin: 0px 15px;
   cursor: pointer;
   font-size: 1rem !important;
+}
+
+.v-treeview-node__label {
+  padding-left: 5px;
 }
 </style>

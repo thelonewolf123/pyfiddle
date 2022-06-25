@@ -12,7 +12,7 @@ const state = {
     }, ],
     activeFile: "main.py",
     activeFileContent: "",
-    openedFiles: ["main.py", ],
+    dependencies: [],
 }
 
 const getters = {
@@ -22,12 +22,16 @@ const getters = {
         let file = state.fileSystem.find(f => f.name === state.activeFile)
         if (file) return file.content
         return ""
-    }
+    },
+    getDependencies: state => state.dependencies
 }
 
 const mutations = {
     setFileStorage: (state, payload) => {
         state.fileSystem = payload
+    },
+    setDependencies: (state, payload) => {
+        state.dependencies = payload
     },
     addFileNewFile: (state, payload) => {
         state.fileSystem.push(payload)
@@ -38,6 +42,21 @@ const mutations = {
     setActiveFileContent(state, payload) {
         let index = state.fileSystem.findIndex(f => f.name === state.activeFile)
         state.fileSystem[index].content = payload
+    },
+
+    addDependency(state, payload) {
+        let version = payload.version
+        let packageName = payload.packageName
+        let index = state.dependencies.findIndex(dep => dep.packageName === packageName)
+        if (index !== -1) {
+            if (state.dependencies[index].version === version) return
+            state.dependencies.splice(index, 1);
+        }
+
+        state.dependencies.push({
+            version: version,
+            packageName: packageName
+        })
     }
 }
 
@@ -46,6 +65,11 @@ const actions = {
         commit
     }, fileSystem) => {
         commit('setFileStorage', fileSystem)
+    },
+    initPyDependency: ({
+        commit
+    }, dependencies) => {
+        commit('setDependencies', dependencies)
     },
     addFile: ({
         commit
@@ -62,7 +86,12 @@ const actions = {
         commit
     }, fileName) {
         commit('setActiveFile', fileName)
-    }
+    },
+    addPyDependency({
+        commit
+    }, payload) {
+        commit('addDependency', payload)
+    },
 }
 
 export default new Vuex.Store({

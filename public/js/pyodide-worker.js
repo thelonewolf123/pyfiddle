@@ -4,6 +4,11 @@ importScripts(indexURL + "pyodide.js");
 self.inputValueBuffer = null;
 self.inputFlagBuffer = null;
 
+function removeNullBytes(str) {
+    return str.split("").filter(char => char.codePointAt(0)).join("")
+}
+
+
 const stdinCallback = () => {
     postMessage({
         cmd: "stdin"
@@ -16,13 +21,13 @@ const stdinCallback = () => {
         self.pyodide.checkInterrupt();
     }
     // convert shared memory to a string
-    let input = String.fromCharCode.apply(null, new Uint8Array(self.inputValueBuffer));
+    let input = removeNullBytes(String.fromCharCode.apply(null, new Uint8Array(self.inputValueBuffer)));
     // send input to python
     return input;
-
 }
 
 function stdoutCallback(data) {
+    console.log(data)
     postMessage({
         cmd: "stdout",
         data
@@ -36,40 +41,68 @@ function stderrCallback(data) {
     });
 }
 
-const initPyiodide = () => {
-    loadPyodide({
+const initPyiodide = async () => {
+    let pyodide = await loadPyodide({
         indexURL: indexURL,
         stdin: stdinCallback,
         stdout: stdoutCallback,
         stderr: stderrCallback
-    }).then(pyodide => {
-        self.pyodide = pyodide;
-        postMessage({
-            cmd: "ready"
-        });
     })
+    self.pyodide = pyodide;
+    await self.pyodide.loadPackage(["micropip"]);
+    let fetchCodeEngine = `
+        from pyodide.http import pyfetch
+        response = await pyfetch("http://localhost:8080/py/codeEngine.py")
+        with open("codeEngine.py", "wb") as f:
+            f.write(await response.bytes())
+        `;
+    await runCode(fetchCodeEngine);
 
+
+}
+
+const doneFunc = () => {
+    postMessage({
+        cmd: "done"
+    });
+}
+
+const runCodeFromFileSysObj = async (files) => {
+    codeEngine = self.pyodide.pyimport("codeEngine");
+    codeEngine.runCode(JSON.stringify(files));
+    doneFunc();
+}
+
+const installPackage = async (packageName) => {
+    await self.pyodide.loadPackage([packageName]);
+}
+
+const runCode = async (code, callBack, errorCB) => {
+    await self.pyodide.runPythonAsync(code).then(() => {
+        if (callBack) callBack();
+    }).catch((err) => {
+        console.error(err)
+        if (errorCB) errorCB();
+    });
 }
 
 onmessage = (msg) => {
     if (msg.data.cmd === "init") {
-        initPyiodide();
-
+        initPyiodide().then(() => {
+            postMessage({
+                cmd: "ready"
+            });
+        });
     } else if (msg.data.cmd === "setInterruptBuffer") {
         self.pyodide.setInterruptBuffer(msg.data.interruptBuffer);
 
     } else if (msg.data.cmd === "runCode") {
-        self.pyodide.runPythonAsync(msg.data.code).then(() => {
-            postMessage({
-                cmd: "done"
-            });
-        }).catch(err => {
-            console.log(err);
-            postMessage({
-                cmd: "done"
-            });
-        });
-
+        if (msg.data.files)
+            runCodeFromFileSysObj(msg.data.files);
+        else
+            runCode(msg.data.code, doneFunc, doneFunc);
+    } else if (msg.data.cmd === "installPackage") {
+        installPackage(msg.data.packageName).then(doneFunc);
     } else if (msg.data.cmd === "setInputBuffer") {
         self.inputFlagBuffer = msg.data.inputFlagBuffer
         self.inputValueBuffer = msg.data.inputValueBuffer
