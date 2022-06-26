@@ -22,7 +22,7 @@ export default {
   },
   watch: {
     code(newVal) {
-      if (newVal && window.editor) {
+      if (window.editor) {
         window.editor.setValue(newVal);
       }
     },
@@ -39,6 +39,7 @@ export default {
     });
   },
 };
+// reference - https://github.com/microsoft/monaco-editor/issues/2530
 </script>
 
 <style>
