@@ -1,3 +1,5 @@
+import sys
+import rlcompleter
 import pdb
 import json
 import re
@@ -19,18 +21,24 @@ def pdbTest(globalVars):
     # print(globals())
 
 
-class Adder:
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
-        self.arr = [1, 2, 3, 4, 5, 6]
-        self.result = 0
-
-    def execute(self):
-        self.result = self.a + self.b
-
-
-adder = Adder(10, 16)
-pdb.set_trace()
-adder.execute()
-print(adder.result)
+cod = 'dic'
+try:
+    class a:
+        pass
+except:
+    pass
+my_completer = rlcompleter.Completer()
+phrase_list = ['co', 'sys.m', 'cal', 'a']
+for phrase in phrase_list:
+    print(phrase + ' (TAB): ', end='')
+    try:
+        for i in range(50):
+            terms = my_completer.complete(phrase, i)
+            if terms is None:
+                break
+            print(terms, end='\t')
+    except:
+        pass
+    print()
+    
+# language server example => https://github.com/gatesn/pyodide/tree/75fc380311ee28d72a3bf670654f4770115268fa
