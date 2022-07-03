@@ -74,6 +74,10 @@ export default {
       theme: this.theme,
       wordBasedSuggestions: true,
       quickSuggestions: true,
+      glyphMargin: true,
+      lightbulb: {
+        enabled: true,
+      },
     });
     window.editor.onDidChangeModelContent(() => {
       this.$emit("codeChanged", window.editor.getValue());

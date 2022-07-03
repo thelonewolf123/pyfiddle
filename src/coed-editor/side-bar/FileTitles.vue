@@ -14,6 +14,7 @@
         dark
         class="icon-x-mark"
         @click="handlerDeleteClick(index, fileName)"
+        style="margin-top: 7px"
       >
         fa-solid fa-xmark
       </v-icon>

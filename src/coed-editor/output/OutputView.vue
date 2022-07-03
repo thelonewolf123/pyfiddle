@@ -25,20 +25,23 @@
         fas fa-eraser
       </v-icon>
     </div>
-    <div class="output-section">
-      <div class="output" :key="index" v-for="(out, index) in output">
-        <div class="output-line">
-          <div class="output-text">
-            {{ out }}
+    <div class="output-and-debug-section">
+      <div class="output-section">
+        <div class="output" :key="index" v-for="(out, index) in output">
+          <div class="output-line">
+            <div class="output-text">
+              {{ out }}
+            </div>
+            <input
+              v-if="showInput && index == output.length - 1"
+              v-model="inputValue"
+              v-on:keyup.enter="submitInput"
+              class="input-box"
+            />
           </div>
-          <input
-            v-if="showInput && index == output.length - 1"
-            v-model="inputValue"
-            v-on:keyup.enter="submitInput"
-            class="input-box"
-          />
         </div>
       </div>
+      <LocalVariablesListVue class="local-var-section" />
     </div>
   </div>
 </template>
@@ -46,8 +49,12 @@
 
 <script>
 import { mapGetters } from "vuex";
+import LocalVariablesListVue from "./LocalVariablesList.vue";
 
 export default {
+  components: {
+    LocalVariablesListVue,
+  },
   data() {
     return {
       output: [],
@@ -146,9 +153,11 @@ export default {
           this.isInterpreterReady = true;
         } else if (e.data.cmd === "stdout") {
           this.output.push(e.data.data);
+
+          let outputPanel = document.querySelector(".output-section");
+          outputPanel.scrollTop = outputPanel.scrollHeight;
         } else if (e.data.cmd === "stderr") {
         } else if (e.data.cmd === "stdin") {
-          // convert string to shared memory
           this.showInput = true;
         } else if (e.data.cmd === "done") {
           this.isCodeRunnig = false;
@@ -197,10 +206,15 @@ export default {
       this.inputValue = "";
       this.showInput = false;
 
-      this.output.push(`${inputPrompt}  ${inputValue}`);
-
+      this.output.push(`${inputPrompt} ${inputValue}`);
+      console.log(inputValue);
+      for (let i = inputValue.length; i < 512; i++) {
+        inputValue += "\x00";
+      }
       let input = new TextEncoder("utf-8").encode(inputValue);
+      console.log(input);
       // copy input to shared memory
+      // this.inputValueBuffer.splice(0, 511);
       this.inputValueBuffer.set(input);
       // set flag to indicate input is ready
       Atomics.store(this.inputFlagBuffer, 0, 0);
@@ -216,6 +230,8 @@ export default {
     },
   },
 };
+
+// line no regex: (?<=\()[0-9]*(?=\))
 </script>
 
 <style lang="scss" scoped>
@@ -224,6 +240,16 @@ export default {
   width: 100%;
   overflow: hidden;
   background: #444;
+}
+
+.output-and-debug-section {
+  display: flex;
+}
+
+.local-var-section {
+  width: 200px;
+  background: #121212;
+  height: 100%;
 }
 .output-section {
   height: 100%;
@@ -260,6 +286,7 @@ export default {
     color: aliceblue;
     padding-left: 5px;
     flex-grow: 10;
+    background-color: #333;
   }
 }
 </style>

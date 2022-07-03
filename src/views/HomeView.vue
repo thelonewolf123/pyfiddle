@@ -1,65 +1,50 @@
 <template>
-  <div class="home">
-    <v-app dark>
-      <v-app-bar app>
-        <!-- -->
-        <div class="header-text">PyCompiler.io</div>
-      </v-app-bar>
-      <!-- Sizes your content based upon application components -->
-      <v-main>
-        <!-- Provides the application the proper gutter -->
-        <v-container fluid>
-          <!-- If using vue-router -->
-          <div class="home-body-section">
-            <div class="about-section">
-              <div class="about-header">About</div>
-              <div class="about-body-section">
-                <div class="single-line-about">
-                  <div class="image-section">
-                    <img
-                      src="/img/assets/python-icon.png"
-                      alt="python-icon"
-                      class="image-icon python-icon"
-                    />
-                  </div>
-                  Learn Python from scratch.
-                </div>
-                <div class="single-line-about">
-                  <div class="image-section">
-                    <img
-                      src="/img/assets/easy-icon.png"
-                      alt="python-icon"
-                      class="image-icon"
-                    />
-                  </div>
-                  Redefines interactive learning
-                </div>
-                <div class="single-line-about">
-                  <div class="image-section">
-                    <img
-                      src="/img/assets/learn-icon.png"
-                      alt="python-icon"
-                      class="image-icon"
-                    />
-                  </div>
-                  Designed with care for beginners
-                </div>
-              </div>
-            </div>
-            <div class="options-section">
-              <div
-                class="just-code coding-btn"
-                @click="$router.push({ path: '/compiler' })"
-              >
-                Just Code
-              </div>
-              <div class="or-section">OR</div>
-              <div class="learn-coding coding-btn">Learn Coding</div>
-            </div>
+  <div class="home-body-section">
+    <div class="about-section">
+      <div class="about-header">About</div>
+      <div class="about-body-section">
+        <div class="single-line-about">
+          <div class="image-section">
+            <img
+              src="/img/assets/python-icon.png"
+              alt="python-icon"
+              class="image-icon python-icon"
+            />
           </div>
-        </v-container>
-      </v-main>
-    </v-app>
+          Learn Python from scratch.
+        </div>
+        <div class="single-line-about">
+          <div class="image-section">
+            <img
+              src="/img/assets/easy-icon.png"
+              alt="python-icon"
+              class="image-icon"
+            />
+          </div>
+          Redefines interactive learning
+        </div>
+        <div class="single-line-about">
+          <div class="image-section">
+            <img
+              src="/img/assets/learn-icon.png"
+              alt="python-icon"
+              class="image-icon"
+            />
+          </div>
+          Designed with care for beginners
+        </div>
+      </div>
+    </div>
+    <div class="options-section">
+      <div
+        class="just-code coding-btn"
+        @click="$router.push({ path: '/compiler' })"
+      >
+        Just Code
+      </div>
+      <div class="or-section">OR</div>
+      <div class="learn-coding coding-btn">Learn Coding</div>
+    </div>
   </div>
 </template>
 

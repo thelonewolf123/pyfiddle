@@ -39,7 +39,7 @@ class CodeEngine:
 
     def run(self):
         with stickytape_temporary_dir() as __stickytape_working_dir:
-            def stickytape_write_module(path, contents):
+            def __stickytape_write_module(path, contents):
                 import os
                 import os.path
 
@@ -59,12 +59,27 @@ class CodeEngine:
                 with open(full_path, 'w') as module_file:
                     module_file.write(contents)
 
-            import sys as stickytape_sys
-            stickytape_sys.path.insert(0, __stickytape_working_dir)
+            import sys as __stickytape_sys
+            __stickytape_sys.path.insert(0, __stickytape_working_dir)
 
             for projectFile in self.projectFiles:
-                stickytape_write_module(projectFile.path, projectFile.content)
+                __stickytape_write_module(
+                    projectFile.path, projectFile.content)
 
+            def getVariableMap(globalVars):
+                globalDict = {}
+                blackListedVars = ['code', 'self',
+                                   'getVariableMap', 'pdb', 'projectFile', 'input']
+                for key in globalVars.keys():
+                    if("__" not in key and key not in blackListedVars and globalVars[key]):
+                        globalDict[key] = {}
+                        globalDict[key]['value'] = str(globalVars[key])
+                        globalDict[key]['children'] = {}
+                        for dirKey in dir(globalVars[key]):
+                            if("__" not in dirKey):
+                                globalDict[key]['children'][dirKey] = str(
+                                    eval(f'globalVars[key].{dirKey}'))
+                print(json.dumps(globalDict))
             try:
                 input = input_fixed
                 code = compile(self.mainFile.content, '__main__', 'exec')

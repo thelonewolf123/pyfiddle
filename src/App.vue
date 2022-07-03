@@ -1,11 +1,21 @@
 <template>
   <div id="app">
-    <!-- <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/compiler">Compiler</router-link>
-    </nav> -->
-    <router-view />
+    <div class="home">
+      <v-app dark>
+        <v-app-bar app>
+          <!-- -->
+          <div class="header-text">PyCompiler.io</div>
+        </v-app-bar>
+        <!-- Sizes your content based upon application components -->
+        <v-main>
+          <!-- Provides the application the proper gutter -->
+          <v-container fluid>
+            <!-- If using vue-router -->
+            <router-view></router-view>
+          </v-container>
+        </v-main>
+      </v-app>
+    </div>
   </div>
 </template>
 

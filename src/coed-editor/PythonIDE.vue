@@ -82,7 +82,12 @@ export default {
 .content-area {
   display: flex;
   flex-direction: row;
-  height: 100vh;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.container {
+  padding: 0px !important;
 }
 
 .top-bar {
