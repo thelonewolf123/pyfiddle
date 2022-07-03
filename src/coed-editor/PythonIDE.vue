@@ -9,7 +9,7 @@
           @removeFileTitle="removeFileTitle"
         ></file-titles-vue>
         <monaco-editor-vue
-          style="width: 100%; height: calc(100vh - 350px)"
+          style="width: 100%; height: calc(75vh - 140px)"
           :code="fileContent"
           language="python"
           theme="vs-dark"

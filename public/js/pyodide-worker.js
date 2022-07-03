@@ -23,12 +23,10 @@ const stdinCallback = () => {
     // convert shared memory to a string
     let input = removeNullBytes(String.fromCharCode.apply(null, new Uint8Array(self.inputValueBuffer)));
     // send input to python
-    console.log(input)
     return input;
 }
 
 function stdoutCallback(data) {
-    console.log(data)
     postMessage({
         cmd: "stdout",
         data

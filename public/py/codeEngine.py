@@ -65,24 +65,10 @@ class CodeEngine:
             for projectFile in self.projectFiles:
                 __stickytape_write_module(
                     projectFile.path, projectFile.content)
-
-            def getVariableMap(globalVars):
-                globalDict = {}
-                blackListedVars = ['code', 'self',
-                                   'getVariableMap', 'pdb', 'projectFile', 'input']
-                for key in globalVars.keys():
-                    if("__" not in key and key not in blackListedVars and globalVars[key]):
-                        globalDict[key] = {}
-                        globalDict[key]['value'] = str(globalVars[key])
-                        globalDict[key]['children'] = {}
-                        for dirKey in dir(globalVars[key]):
-                            if("__" not in dirKey):
-                                globalDict[key]['children'][dirKey] = str(
-                                    eval(f'globalVars[key].{dirKey}'))
-                print(json.dumps(globalDict))
             try:
                 input = input_fixed
-                code = compile(self.mainFile.content, '__main__', 'exec')
+                code = compile(self.mainFile.content,
+                               self.mainFile.name, 'exec')
                 exec(code)
             except Exception as e:
                 print(e)

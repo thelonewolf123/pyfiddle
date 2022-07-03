@@ -41,7 +41,10 @@
           </div>
         </div>
       </div>
-      <LocalVariablesListVue class="local-var-section" />
+      <LocalVariablesListVue
+        class="local-var-section"
+        :localVariables="localVariables"
+      />
     </div>
   </div>
 </template>
@@ -49,6 +52,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import DebuggerHelper from "./debuggerHelper";
 import LocalVariablesListVue from "./LocalVariablesList.vue";
 
 export default {
@@ -68,6 +72,8 @@ export default {
       inputFlagBuffer: null,
       inputValueBuffer: null,
       isCodeRunnig: false,
+      localVariables: null,
+      debuggerHelper: null,
     };
   },
   computed: {
@@ -119,7 +125,7 @@ export default {
       this.pdbState = 0;
       this.isPdbActive = false;
       this.pyodideWorker = new Worker("/js/pyodide-worker.js");
-
+      this.debuggerHelper = new DebuggerHelper();
       this.pyodideWorker.postMessage({
         cmd: "init",
       });
@@ -152,13 +158,13 @@ export default {
 
           this.isInterpreterReady = true;
         } else if (e.data.cmd === "stdout") {
-          this.output.push(e.data.data);
+          this.stdOutHandler(e.data.data);
 
           let outputPanel = document.querySelector(".output-section");
           outputPanel.scrollTop = outputPanel.scrollHeight;
         } else if (e.data.cmd === "stderr") {
         } else if (e.data.cmd === "stdin") {
-          this.showInput = true;
+          this.stdInhandler();
         } else if (e.data.cmd === "done") {
           this.isCodeRunnig = false;
         }
@@ -182,6 +188,21 @@ export default {
       });
 
       return newFileSystemObj;
+    },
+    stdOutHandler(output) {
+      if (output === "pdb - trace") {
+        this.isPdbActive = true;
+      } else if (this.isPdbActive === true) {
+        this.debuggerHelper.parsePdbOutPut(output);
+      } else this.output.push(output);
+    },
+    stdInhandler() {
+      if (!this.isPdbActive) this.showInput = true;
+      else {
+        this.inputValue = "import debugger; debugger.getVariableMap(locals())";
+        this.submitInput();
+        this.isPdbActive = false;
+      }
     },
     async runCode() {
       // Clear interruptBuffer in case it was accidentally left set after previous code completed.
@@ -207,12 +228,10 @@ export default {
       this.showInput = false;
 
       this.output.push(`${inputPrompt} ${inputValue}`);
-      console.log(inputValue);
       for (let i = inputValue.length; i < 512; i++) {
         inputValue += "\x00";
       }
       let input = new TextEncoder("utf-8").encode(inputValue);
-      console.log(input);
       // copy input to shared memory
       // this.inputValueBuffer.splice(0, 511);
       this.inputValueBuffer.set(input);
@@ -230,13 +249,11 @@ export default {
     },
   },
 };
-
-// line no regex: (?<=\()[0-9]*(?=\))
 </script>
 
 <style lang="scss" scoped>
 .output-view {
-  height: 350px;
+  height: calc(25vh + 40px);
   width: 100%;
   overflow: hidden;
   background: #444;
@@ -247,21 +264,22 @@ export default {
 }
 
 .local-var-section {
-  width: 200px;
-  background: #121212;
-  height: 100%;
+  width: 50%;
+  height: 25vh;
+  background: #444;
+  /* height: 100%; */
 }
 .output-section {
-  height: 100%;
-  width: 100%;
+  height: 25vh;
+  width: 50%;
   overflow-y: scroll;
-  overflow-x: hidden;
+  overflow-x: scroll;
   color: aliceblue;
   font-family: "Courier New", Courier, monospace;
   font-size: 16px;
   font-weight: 600;
   padding: 10px;
-  padding-bottom: 100px;
+  /* padding-bottom: 100px; */
 }
 .control-bar {
   display: flex;
@@ -279,6 +297,7 @@ export default {
   input:focus {
     outline: none;
   }
+
   input {
     outline: none;
     border: none;

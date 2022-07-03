@@ -13,6 +13,8 @@ const state = {
     activeFile: "main.py",
     activeFileContent: "",
     dependencies: [],
+    debuggerLineNumber: null,
+    debuggerFileName: null
 }
 
 const getters = {
@@ -23,7 +25,9 @@ const getters = {
         if (file) return file.content
         return ""
     },
-    getDependencies: state => state.dependencies
+    getDependencies: state => state.dependencies,
+    getDebuggerLineNumber: state => state.debuggerLineNumber,
+    getDebuggerFileName: state => state.debuggerFileName,
 }
 
 const mutations = {
@@ -42,6 +46,13 @@ const mutations = {
     setActiveFileContent(state, payload) {
         let index = state.fileSystem.findIndex(f => f.name === state.activeFile)
         state.fileSystem[index].content = payload
+    },
+
+    setDebuggerFileName(state, payload) {
+        state.debuggerFileName = payload
+    },
+    setDebuggerLineNumber(state, payload) {
+        state.debuggerLineNumber = payload
     },
 
     addDependency(state, payload) {

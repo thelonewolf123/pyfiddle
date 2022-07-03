@@ -25,13 +25,23 @@ class DebuggerHelper {
     }
 
     lineNumberParser(pdbOutput) {
-        let lineNumberStr = pdbOutput.split("/")
-        console.log(lineNumberStr)
+        let lineNumberPattern = /(?<=\()[0-9]*(?=\))/
+        this.lineNumber = parseInt(lineNumberPattern.exec(pdbOutput)[0])
+        console.log(this.lineNumber)
     }
 
     fileNameParser(pdbOutput) {
-        let fileNameStr = pdbOutput.split("/")
-        console.log(fileNameStr)
+        let fileNameArr = pdbOutput.split('/')
+        this.fileName = fileNameArr[fileNameArr.length - 1].split(".py")[0] + ".py"
+        console.log(this.fileName)
+    }
+
+    getLineNumber(){
+        return this.lineNumber
+    }
+
+    getFileName(){
+        return this.fileName
     }
 }
 
