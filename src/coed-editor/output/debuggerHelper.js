@@ -24,6 +24,10 @@ class DebuggerHelper {
         return false;
     }
 
+    getPdbCommand(){
+        return 'c'
+    }
+
     lineNumberParser(pdbOutput) {
         let lineNumberPattern = /(?<=\()[0-9]*(?=\))/
         this.lineNumber = parseInt(lineNumberPattern.exec(pdbOutput)[0])
