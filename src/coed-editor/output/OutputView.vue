@@ -51,7 +51,7 @@
 
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import DebuggerHelper from "./debuggerHelper";
 import LocalVariablesListVue from "./LocalVariablesList.vue";
 
@@ -118,6 +118,7 @@ export default {
     this.pyodideWorker.terminate();
   },
   methods: {
+    ...mapActions(["changeDebugActiveLineNumber"]),
     init() {
       this.output = [];
       this.showInput = false;
@@ -192,16 +193,17 @@ export default {
     stdOutHandler(output) {
       if (output === "pdb - trace") {
         this.isPdbActive = true;
+        this.debuggerHelper.setDebuggerActive(true);
       } else if (this.isPdbActive === true) {
         this.debuggerHelper.parsePdbOutPut(output);
       } else this.output.push(output);
     },
     stdInhandler() {
       if (!this.isPdbActive) this.showInput = true;
-      else {
-        this.inputValue = "import debugger; debugger.getVariableMap(locals())";
+      else if(this.debuggerHelper.getPdbCommand() !== "pause"){
+        this.inputValue = this.debuggerHelper.getPdbCommand();
         this.submitInput();
-        this.isPdbActive = false;
+        this.isPdbActive = this.debuggerHelper.getDebuggerStatus();
       }
     },
     async runCode() {
@@ -210,7 +212,7 @@ export default {
       this.output = [];
       // Run code in worker.
       console.log("Running code in worker...");
-
+      this.debuggerHelper.resetDebugger();
       this.pyodideWorker.postMessage({
         cmd: "runCode",
         files: this.getFileSysObject(
@@ -223,11 +225,15 @@ export default {
     },
     submitInput() {
       let inputValue = this.inputValue;
-      let inputPrompt = this.output.pop();
       this.inputValue = "";
+
+      if (!this.isPdbActive) {
+        let inputPrompt = this.output.pop();
+        this.output.push(`${inputPrompt} ${inputValue}`);
+      }
+
       this.showInput = false;
 
-      this.output.push(`${inputPrompt} ${inputValue}`);
       for (let i = inputValue.length; i < 512; i++) {
         inputValue += "\x00";
       }

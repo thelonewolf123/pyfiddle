@@ -51,9 +51,11 @@ const initPyiodide = async () => {
     await self.pyodide.loadPackage(["micropip"]);
     let fetchCodeEngine = `
         from pyodide.http import pyfetch
-        response = await pyfetch("/py/codeEngine.py")
-        with open("codeEngine.py", "wb") as f:
-            f.write(await response.bytes())
+        fileArr = ["codeEngine.py", "debugger.py"]
+        for fileName in fileArr:
+            response = await pyfetch("/py/" + fileName)
+            with open(fileName, "wb") as f:
+                f.write(await response.bytes())
         `;
     await runCode(fetchCodeEngine);
 }

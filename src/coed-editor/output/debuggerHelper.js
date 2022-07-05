@@ -3,29 +3,42 @@ class DebuggerHelper {
         this.lineNumber = null
         this.debugFileName = null
         this.variableMap = null
-        this.debuggerState = 0
+        this.debuggerState = -1
+        this.commandArray = [
+            'import debugger; debugger.getVariableMap(locals())',
+            'pause'
+        ]
+        this.isDebuggerActive = false
     }
 
     resetDebugger() {
         this.lineNumber = null
         this.debugFileName = null
         this.variableMap = null
-        this.debuggerState = 0
+        this.debuggerState = -1
+        this.isDebuggerActive = false
     }
 
     parsePdbOutPut(pdbOutput) {
         if (pdbOutput && pdbOutput.startsWith('>')) {
             this.lineNumberParser(pdbOutput)
             this.fileNameParser(pdbOutput)
+        } else if (pdbOutput === "debug-finished") {
+            this.isDebuggerActive = false
         }
+        console.log(pdbOutput)
     }
 
-    isDebuggerActive() {
-        return false;
+    setDebuggerActive(state) {
+        this.isDebuggerActive = state
     }
 
-    getPdbCommand(){
-        return 'c'
+    getDebuggerStatus() {
+        return this.isDebuggerActive
+    }
+    getPdbCommand() {
+        if (this.debuggerState !== 1) this.debuggerState++
+        return this.commandArray[this.debuggerState]
     }
 
     lineNumberParser(pdbOutput) {
@@ -40,11 +53,11 @@ class DebuggerHelper {
         console.log(this.fileName)
     }
 
-    getLineNumber(){
+    getLineNumber() {
         return this.lineNumber
     }
 
-    getFileName(){
+    getFileName() {
         return this.fileName
     }
 }

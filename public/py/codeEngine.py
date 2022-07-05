@@ -1,4 +1,3 @@
-
 import contextlib as __stickytape_contextlib
 from dataclasses import dataclass
 from inspect import stack

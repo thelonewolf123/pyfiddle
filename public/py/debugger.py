@@ -15,4 +15,4 @@ def getVariableMap(globalVars):
                     globalDict[key]['children'][dirKey]['value'] = str(eval(f'globalVars[key].{dirKey}'))
     print(json.dumps(globalDict))
     print("debug-finished")
-# language server example => https://github.com/gatesn/pyodide/tree/75fc380311ee28d72a3bf670654f4770115268fa
+# import debugger; debugger.getVariableMap(locals())

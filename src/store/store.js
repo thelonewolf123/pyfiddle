@@ -27,7 +27,6 @@ const getters = {
     },
     getDependencies: state => state.dependencies,
     getDebuggerLineNumber: state => state.debuggerLineNumber,
-    getDebuggerFileName: state => state.debuggerFileName,
 }
 
 const mutations = {
@@ -48,9 +47,6 @@ const mutations = {
         state.fileSystem[index].content = payload
     },
 
-    setDebuggerFileName(state, payload) {
-        state.debuggerFileName = payload
-    },
     setDebuggerLineNumber(state, payload) {
         state.debuggerLineNumber = payload
     },
@@ -97,6 +93,11 @@ const actions = {
         commit
     }, fileName) {
         commit('setActiveFile', fileName)
+    },
+    changeDebugActiveLineNumber({
+        commit
+    }, lineNo) {
+        commit('setDebuggerLineNumber', lineNo)
     },
     addPyDependency({
         commit
