@@ -21,6 +21,14 @@
       <v-icon dark class="pointer icon-class" :disabled="true">
         fa-solid fa-bug
       </v-icon>
+      <v-icon
+        dark
+        class="pointer icon-class"
+        :disabled="!isWaitingForPdb"
+        @click="continueExecutionHandler"
+      >
+        fa-solid fa-forward-step
+      </v-icon>
       <v-icon dark class="pointer icon-class" @click="clearOutput">
         fas fa-eraser
       </v-icon>
@@ -74,6 +82,7 @@ export default {
       isCodeRunnig: false,
       localVariables: null,
       debuggerHelper: null,
+      isWaitingForPdb: false,
     };
   },
   computed: {
@@ -109,6 +118,13 @@ export default {
         this.isCodeRunnig = true;
       }
     },
+    isPdbActive(newVal) {
+      console.log("new Val pdb -> ", newVal);
+      if (!newVal) {
+        this.debuggerHelper.resetDebugger();
+        this.debuggerHelper.debuggerState = -2;
+      }
+    },
   },
   mounted() {
     this.init();
@@ -118,7 +134,7 @@ export default {
     this.pyodideWorker.terminate();
   },
   methods: {
-    ...mapActions(["changeDebugActiveLineNumber"]),
+    ...mapActions(["changeDebugActiveLineNumber", "changeActiveFile"]),
     init() {
       this.output = [];
       this.showInput = false;
@@ -191,20 +207,39 @@ export default {
       return newFileSystemObj;
     },
     stdOutHandler(output) {
-      if (output === "pdb - trace") {
+      if (output === "pdb - trace" || output === "(Pdb) pdb - trace") {
         this.isPdbActive = true;
         this.debuggerHelper.setDebuggerActive(true);
       } else if (this.isPdbActive === true) {
         this.debuggerHelper.parsePdbOutPut(output);
-      } else this.output.push(output);
+      } else if (output && output.startsWith("(Pdb) ")) {
+        this.output.push(output.substring(6));
+      } else {
+        this.output.push(output);
+      }
+      this.isPdbActive = this.debuggerHelper.getDebuggerStatus();
+      this.localVariables = this.debuggerHelper.getVariableMap();
+      if (this.debuggerHelper.getFileName())
+        this.changeActiveFile(this.debuggerHelper.getFileName());
     },
     stdInhandler() {
-      if (!this.isPdbActive) this.showInput = true;
-      else if(this.debuggerHelper.getPdbCommand() !== "pause"){
-        this.inputValue = this.debuggerHelper.getPdbCommand();
-        this.submitInput();
-        this.isPdbActive = this.debuggerHelper.getDebuggerStatus();
+      if (!this.isPdbActive) {
+        this.showInput = true;
       }
+
+      let cmd = this.debuggerHelper.getPdbCommand();
+      if (this.isPdbActive && cmd !== "pause") {
+        this.inputValue = cmd;
+        this.submitInput(true);
+      } else {
+        this.isWaitingForPdb = true;
+      }
+      this.isPdbActive = this.debuggerHelper.getDebuggerStatus();
+    },
+    continueExecutionHandler() {
+      this.inputValue = "continue";
+      this.submitInput(true);
+      this.isWaitingForPdb = false;
     },
     async runCode() {
       // Clear interruptBuffer in case it was accidentally left set after previous code completed.
@@ -220,14 +255,15 @@ export default {
           this.getActiveFile,
           this.getActiveFileContent
         ),
+        // code: this.getActiveFileContent
       });
       this.isCodeRunnig = true;
     },
-    submitInput() {
+    submitInput(excludeOutput) {
       let inputValue = this.inputValue;
       this.inputValue = "";
 
-      if (!this.isPdbActive) {
+      if (!excludeOutput) {
         let inputPrompt = this.output.pop();
         this.output.push(`${inputPrompt} ${inputValue}`);
       }

@@ -61,6 +61,7 @@ export default {
   border-bottom: 4px solid #333;
   height: 40px;
   background: #444;
+  line-height: 1;
 }
 
 .single-file-title {

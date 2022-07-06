@@ -23,6 +23,8 @@ class DebuggerHelper {
         if (pdbOutput && pdbOutput.startsWith('>')) {
             this.lineNumberParser(pdbOutput)
             this.fileNameParser(pdbOutput)
+        } else if (pdbOutput && pdbOutput.startsWith("(Pdb) {")) {
+            this.variableMapParser(pdbOutput.split("(Pdb)")[1])
         } else if (pdbOutput === "debug-finished") {
             this.isDebuggerActive = false
         }
@@ -49,8 +51,17 @@ class DebuggerHelper {
 
     fileNameParser(pdbOutput) {
         let fileNameArr = pdbOutput.split('/')
-        this.fileName = fileNameArr[fileNameArr.length - 1].split(".py")[0] + ".py"
+        // this.fileName = fileNameArr[fileNameArr.length - 1].split(".py")[0] + ".py"
         console.log(this.fileName)
+    }
+
+    variableMapParser(variableMapString) {
+        try {
+            this.variableMap = JSON.parse(variableMapString)
+            // this.isDebuggerActive = false
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     getLineNumber() {
@@ -59,6 +70,10 @@ class DebuggerHelper {
 
     getFileName() {
         return this.fileName
+    }
+
+    getVariableMap() {
+        return this.variableMap
     }
 }
 

@@ -26,21 +26,18 @@ export default {
   watch: {
     localVariables: {
       handler(newVal) {
-        console.log(newVal);
+        if (!newVal) this.transformedVariableList = [];
+        this.transformedVariableList = this.getVariableMap(newVal);
       },
       deep: true,
     },
   },
-  computed: {
-    transformedVariableList() {
-      if (!this.localVariables) return [];
-      return this.getVariableMap(this.localVariables);
-    },
-  },
+
   data() {
     return {
       globalId: 0,
       activeVarList: [],
+      transformedVariableList: [],
       variableTypes: [
         "function",
         "class",
@@ -56,7 +53,7 @@ export default {
   methods: {
     getVariableMap(variable) {
       let result = [];
-      if (variable) return result;
+      if (!variable) return result;
 
       let vars = Object.keys(variable);
       vars.forEach((v) => {
