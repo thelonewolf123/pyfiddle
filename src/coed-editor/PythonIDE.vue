@@ -13,6 +13,7 @@
           :code="fileContent"
           language="python"
           theme="vs-dark"
+          :debuggerLineNumber="getDebuggerLineNumber"
           @codeChanged="codeChanged"
         ></monaco-editor-vue>
         <output-view-vue></output-view-vue>
@@ -36,7 +37,11 @@ export default {
     FileTitlesVue,
   },
   computed: {
-    ...mapGetters(["getActiveFile", "getActiveFileContent"]),
+    ...mapGetters([
+      "getActiveFile",
+      "getActiveFileContent",
+      "getDebuggerLineNumber",
+    ]),
     fileName() {
       return this.getActiveFile;
     },

@@ -18,7 +18,13 @@
       >
         fa-solid fa-stop
       </v-icon>
-      <v-icon dark class="pointer icon-class" :disabled="true">
+      <v-icon
+        v-if="!isCodeRunnig"
+        dark
+        class="pointer icon-class"
+        @click="runWithDebuggerHandler"
+        :disabled="!isInterpreterReady"
+      >
         fa-solid fa-bug
       </v-icon>
       <v-icon
@@ -83,6 +89,7 @@ export default {
       localVariables: null,
       debuggerHelper: null,
       isWaitingForPdb: false,
+      runWithDebugger: false,
     };
   },
   computed: {
@@ -184,6 +191,7 @@ export default {
           this.stdInhandler();
         } else if (e.data.cmd === "done") {
           this.isCodeRunnig = false;
+          this.runWithDebugger = false;
         }
       };
     },
@@ -206,7 +214,16 @@ export default {
 
       return newFileSystemObj;
     },
+    runWithDebuggerHandler() {
+      this.runWithDebugger = true;
+      this.runCode();
+    },
     stdOutHandler(output) {
+      if (!this.runWithDebugger) {
+        this.output.push(output);
+        return;
+      }
+
       if (output === "pdb - trace" || output === "(Pdb) pdb - trace") {
         this.isPdbActive = true;
         this.debuggerHelper.setDebuggerActive(true);
@@ -217,12 +234,21 @@ export default {
       } else {
         this.output.push(output);
       }
-      this.isPdbActive = this.debuggerHelper.getDebuggerStatus();
-      this.localVariables = this.debuggerHelper.getVariableMap();
+
       if (this.debuggerHelper.getFileName())
         this.changeActiveFile(this.debuggerHelper.getFileName());
+      if (this.debuggerHelper.getLineNumber())
+        this.changeDebugActiveLineNumber(this.debuggerHelper.getLineNumber());
+
+      this.isPdbActive = this.debuggerHelper.getDebuggerStatus();
+      this.localVariables = this.debuggerHelper.getVariableMap();
     },
     stdInhandler() {
+      if (!this.runWithDebugger) {
+        this.showInput = true;
+        return;
+      }
+
       if (!this.isPdbActive) {
         this.showInput = true;
       }
@@ -285,6 +311,9 @@ export default {
     stopExecution() {
       // set interupt buffer to 2 to stop execution
       this.interruptBuffer[0] = 2;
+      this.pyodideWorker.terminate();
+      this.init();
+      this.isInterpreterReady = false;
     },
     clearOutput() {
       this.output = [];

@@ -19,11 +19,25 @@ export default {
       type: String,
       default: "vs-dark",
     },
+    debuggerLineNumber: {
+      type: Number,
+      default: null,
+    },
   },
   watch: {
     code(newVal) {
       if (window.editor) {
         window.editor.setValue(newVal);
+      }
+    },
+    debuggerLineNumber(newVal) {
+      if (newVal) {
+        this.targetId = this.editorLineHighlight(
+          newVal,
+          "debuggerContentClass",
+          "debuggerGlyphMarginClass",
+          this.targetId
+        );
       }
     },
   },
@@ -83,6 +97,29 @@ export default {
       this.$emit("codeChanged", window.editor.getValue());
     });
   },
+  data() {
+    return {
+      targetId: [],
+    };
+  },
+  methods: {
+    editorLineHighlight(lineNo, className, marginClassName, targetId) {
+      let decoration = window.editor.deltaDecorations(
+        [targetId],
+        [
+          {
+            range: new monaco.Range(lineNo, 1, lineNo, 1),
+            options: {
+              isWholeLine: true,
+              className: className,
+              glyphMarginClassName: marginClassName,
+            },
+          },
+        ]
+      );
+      return decoration[0];
+    },
+  },
 };
 // reference - https://github.com/microsoft/monaco-editor/issues/2530
 </script>
@@ -91,5 +128,15 @@ export default {
 body {
   margin: 0;
   padding: 0;
+}
+/* .debuggerGlyphMarginClass {
+  background: #f00;
+  border-radius: 25px;
+  margin-left: 10px;
+  height: 10px !important;
+  width: 10px !important;
+} */
+.debuggerContentClass {
+  background: #4a5116;
 }
 </style>
