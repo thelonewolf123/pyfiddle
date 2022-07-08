@@ -51,11 +51,21 @@ const initPyiodide = async () => {
     await self.pyodide.loadPackage(["micropip"]);
     let fetchCodeEngine = `
         from pyodide.http import pyfetch
-        fileArr = ["codeEngine.py", "debugger.py", "codeRunner.py"]
-        for fileName in fileArr:
-            response = await pyfetch("/py/" + fileName)
-            with open(fileName, "wb") as f:
-                f.write(await response.bytes())
+        import sys
+        import builtins
+
+        def input_fixed(promt=''):
+            print(promt)
+            return sys.stdin.readline().strip()
+
+        builtins.input = input_fixed
+        async def init():
+            fileArr = ["codeEngine.py", "debugger.py", "codeRunner.py"]
+            for fileName in fileArr:
+                response = await pyfetch("/py/" + fileName)
+                with open(fileName, "wb") as f:
+                    f.write(await response.bytes())
+        await init()
         `;
     await runCode(fetchCodeEngine);
 }
@@ -69,11 +79,21 @@ const doneFunc = () => {
 const runCodeFromFileSysObj = async (files) => {
     codeEngine = self.pyodide.pyimport("codeRunner");
     codeEngine.runCode(JSON.stringify(files));
-    doneFunc();
 }
 
 const installPackage = async (packageName) => {
-    await self.pyodide.loadPackage([packageName]);
+    try {
+        await self.pyodide.loadPackage([packageName]);
+        postMessage({
+            cmd: "packageInstallDone",
+            packageName: packageName
+        });
+    } catch (err) {
+        postMessage({
+            cmd: "errorPackageInstall",
+            packageName: packageName
+        });
+    }
 }
 
 const runCode = async (code, callBack, errorCB) => {
@@ -96,10 +116,8 @@ onmessage = (msg) => {
         self.pyodide.setInterruptBuffer(msg.data.interruptBuffer);
 
     } else if (msg.data.cmd === "runCode") {
-        if (msg.data.files)
-            runCodeFromFileSysObj(msg.data.files);
-        else
-            runCode(msg.data.code, doneFunc, doneFunc);
+        runCodeFromFileSysObj(msg.data.files);
+        runCode(msg.data.code, doneFunc, doneFunc);
     } else if (msg.data.cmd === "installPackage") {
         installPackage(msg.data.packageName).then(doneFunc);
     } else if (msg.data.cmd === "setInputBuffer") {

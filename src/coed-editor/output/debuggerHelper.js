@@ -23,12 +23,13 @@ class DebuggerHelper {
         if (pdbOutput && pdbOutput.startsWith('>')) {
             this.lineNumberParser(pdbOutput)
             this.fileNameParser(pdbOutput)
-        } else if (pdbOutput && pdbOutput.startsWith("(Pdb) {")) {
-            this.variableMapParser(pdbOutput.split("(Pdb)")[1])
+        } else if (pdbOutput && pdbOutput.startsWith("<<")) {
+            this.variableMapParser(pdbOutput.substring(2))
         } else if (pdbOutput === "debug-finished") {
             this.isDebuggerActive = false
+        } else {
+            console.log(pdbOutput)
         }
-        console.log(pdbOutput)
     }
 
     setDebuggerActive(state) {
@@ -39,8 +40,8 @@ class DebuggerHelper {
         return this.isDebuggerActive
     }
     getPdbCommand() {
-        if (this.debuggerState !== 1) this.debuggerState++
-        return this.commandArray[this.debuggerState]
+        this.debuggerState++
+        return this.commandArray[this.debuggerState % 2]
     }
 
     lineNumberParser(pdbOutput) {
@@ -50,9 +51,13 @@ class DebuggerHelper {
     }
 
     fileNameParser(pdbOutput) {
+        if (pdbOutput && pdbOutput.startsWith("> <exec>")) {
+            this.fileName = "<executedMainFile>"
+            return
+        }
         let fileNameArr = pdbOutput.split('/')
-        // this.fileName = fileNameArr[fileNameArr.length - 1].split(".py")[0] + ".py"
-        console.log(this.fileName)
+        this.fileName = fileNameArr[fileNameArr.length - 1].split(".py")[0] + ".py"
+        console.log(this.fileName, pdbOutput)
     }
 
     variableMapParser(variableMapString) {

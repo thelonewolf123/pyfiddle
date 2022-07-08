@@ -22,7 +22,7 @@
 
 <script>
 export default {
-  props: ["localVariables"],
+  props: ["localVariables", "includeSpecialVars"],
   watch: {
     localVariables: {
       handler(newVal) {
@@ -56,6 +56,11 @@ export default {
       if (!variable) return result;
 
       let vars = Object.keys(variable);
+
+      if (!this.includeSpecialVars) {
+        vars = vars.filter((v) => !v.startsWith("__"));
+      }
+
       vars.forEach((v) => {
         let temp = {};
         temp["name"] = v;
@@ -86,7 +91,7 @@ export default {
 
 .loacl-variables {
   overflow: scroll;
-  
+
   .v-treeview-node__root {
     display: flex;
     align-items: center;

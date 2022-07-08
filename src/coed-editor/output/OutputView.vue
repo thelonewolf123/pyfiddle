@@ -29,11 +29,30 @@
       </v-icon>
       <v-icon
         dark
+        v-if="runWithDebugger"
         class="pointer icon-class"
         :disabled="!isWaitingForPdb"
         @click="continueExecutionHandler"
       >
-        fa-solid fa-forward-step
+        fas fa-forward
+      </v-icon>
+      <v-icon
+        dark
+        v-if="runWithDebugger"
+        class="pointer icon-class"
+        :disabled="!isWaitingForPdb"
+        @click="singleStepExecutionHandler"
+      >
+        fas fa-step-forward
+      </v-icon>
+      <v-icon
+        dark
+        v-if="runWithDebugger"
+        class="pointer icon-class"
+        :disabled="!isWaitingForPdb"
+        @click="stepIntoExecutionHandler"
+      >
+        fa-solid fa-caret-down
       </v-icon>
       <v-icon dark class="pointer icon-class" @click="clearOutput">
         fas fa-eraser
@@ -92,6 +111,7 @@ export default {
       debuggerHelper: null,
       isWaitingForPdb: false,
       runWithDebugger: false,
+      executedFileName: null,
     };
   },
   computed: {
@@ -127,13 +147,12 @@ export default {
         this.isCodeRunnig = true;
       }
     },
-    isPdbActive(newVal) {
-      console.log("new Val pdb -> ", newVal);
-      if (!newVal) {
-        this.debuggerHelper.resetDebugger();
-        this.debuggerHelper.debuggerState = -2;
-      }
-    },
+    // isPdbActive(newVal) {
+    //   console.log("new Val pdb -> ", newVal);
+    //   if (!newVal) {
+    //     this.debuggerHelper.resetDebugger();
+    //   }
+    // },
   },
   mounted() {
     this.init();
@@ -226,24 +245,44 @@ export default {
         return;
       }
 
-      if (output === "pdb - trace" || output === "(Pdb) pdb - trace") {
+      if (this.isPdbStarted(output) && !this.isPdbActive) {
         this.isPdbActive = true;
         this.debuggerHelper.setDebuggerActive(true);
-      } else if (this.isPdbActive === true) {
         this.debuggerHelper.parsePdbOutPut(output);
-      } else if (output && output.startsWith("(Pdb) ")) {
-        this.output.push(output.substring(6));
-      } else {
+      } else if (this.isPdbActive === true && this.isPdbParsingOutput(output)) {
+        this.debuggerHelper.parsePdbOutPut(output);
+      } else if (output !== "--Return--" && output !== "--Call--") {
         this.output.push(output);
       }
 
-      if (this.debuggerHelper.getFileName())
+      if (this.debuggerHelper.getFileName() === "<executedMainFile>")
+        this.changeActiveFile(this.executedFileName);
+      else if (this.debuggerHelper.getFileName())
         this.changeActiveFile(this.debuggerHelper.getFileName());
+
       if (this.debuggerHelper.getLineNumber())
         this.changeDebugActiveLineNumber(this.debuggerHelper.getLineNumber());
 
       this.isPdbActive = this.debuggerHelper.getDebuggerStatus();
       this.localVariables = this.debuggerHelper.getVariableMap();
+    },
+    isPdbParsingOutput(output) {
+      if (!output) return true;
+      else if (output.startsWith(">")) return true;
+      else if (output === "debug-finished") return true;
+      else if (output.startsWith("<<")) return true;
+      else if (output.startsWith("->")) return true;
+      else if (output.startsWith("(Pdb) ")) return true;
+      else if (output.startsWith("pdb - trace")) return true;
+      else if (output.startsWith("> /home/pyodide")) return true;
+      return false;
+    },
+    isPdbStarted(output) {
+      if (output && output.startsWith("> /home/pyodide")) return true;
+      else if (output && output === "pdb - trace") return true;
+      else if (output && output.startsWith("> <exec>")) return true;
+      else if (output && output === "(Pdb) ") return true;
+      return false;
     },
     stdInhandler() {
       if (!this.runWithDebugger) {
@@ -269,6 +308,16 @@ export default {
       this.submitInput(true);
       this.isWaitingForPdb = false;
     },
+    singleStepExecutionHandler() {
+      this.inputValue = "next";
+      this.submitInput(true);
+      this.isWaitingForPdb = false;
+    },
+    stepIntoExecutionHandler() {
+      this.inputValue = "step";
+      this.submitInput(true);
+      this.isWaitingForPdb = false;
+    },
     async runCode() {
       // Clear interruptBuffer in case it was accidentally left set after previous code completed.
       this.interruptBuffer[0] = 0;
@@ -278,17 +327,18 @@ export default {
       this.debuggerHelper.resetDebugger();
       this.pyodideWorker.postMessage({
         cmd: "runCode",
-        // files: this.getFileSysObject(
-        //   this.getFileSystem,
-        //   this.getActiveFile,
-        //   this.getActiveFileContent
-        // ),
-        code: this.getActiveFileContent
+        files: this.getFileSysObject(
+          this.getFileSystem,
+          this.getActiveFile,
+          this.getActiveFileContent
+        ),
+        code: this.getActiveFileContent,
       });
+      this.executedFileName = this.getActiveFile;
       this.isCodeRunnig = true;
     },
     submitInput(excludeOutput) {
-      let inputValue = this.inputValue;
+      let inputValue = this.inputValue ? this.inputValue : "";
       this.inputValue = "";
 
       if (!excludeOutput) {

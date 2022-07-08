@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import json
-import sys
 
 
 @dataclass
@@ -8,10 +7,6 @@ class CodeFile:
     content: str
     name: str
     path: str
-
-def input_fixed(promt=''):
-    print(promt)
-    return sys.stdin.readline().strip()
 
 
 class CodeEngine:
@@ -26,12 +21,6 @@ class CodeEngine:
         for projectFile in self.projectFiles:
             with open(projectFile.path, 'w') as f:
                 f.write(projectFile.content)
-        try:
-            input = input_fixed
-            code = compile(self.mainFile.content, self.mainFile.name, 'exec')
-            exec(code)
-        except Exception as e:
-            print(e)
 
 
 def runCode(codeJson):

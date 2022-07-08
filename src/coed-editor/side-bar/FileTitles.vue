@@ -41,10 +41,9 @@ export default {
     handerTitleClick(fileName) {
       this.changeActiveFile(fileName);
     },
-    handlerDeleteClick(index, fileName) {
+    handlerDeleteClick(index) {
       if (this.files.length === 1) return;
       this.$emit("removeFileTitle", index);
-      if (fileName !== this.activeFile) return;
       let newIndex = index - 1 >= 0 ? index - 1 : 0;
       this.changeActiveFile(this.files[newIndex]);
     },
