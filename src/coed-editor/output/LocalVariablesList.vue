@@ -85,6 +85,8 @@ export default {
 }
 
 .loacl-variables {
+  overflow: scroll;
+  
   .v-treeview-node__root {
     display: flex;
     align-items: center;

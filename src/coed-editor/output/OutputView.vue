@@ -40,7 +40,7 @@
       </v-icon>
     </div>
     <div class="output-and-debug-section">
-      <div class="output-section">
+      <div class="output-section" :class="{ width50: runWithDebugger }">
         <div class="output" :key="index" v-for="(out, index) in output">
           <div class="output-line">
             <div class="output-text">
@@ -56,7 +56,9 @@
         </div>
       </div>
       <LocalVariablesListVue
+        v-if="runWithDebugger"
         class="local-var-section"
+        :class="{ width50: runWithDebugger }"
         :localVariables="localVariables"
       />
     </div>
@@ -276,12 +278,12 @@ export default {
       this.debuggerHelper.resetDebugger();
       this.pyodideWorker.postMessage({
         cmd: "runCode",
-        files: this.getFileSysObject(
-          this.getFileSystem,
-          this.getActiveFile,
-          this.getActiveFileContent
-        ),
-        // code: this.getActiveFileContent
+        // files: this.getFileSysObject(
+        //   this.getFileSystem,
+        //   this.getActiveFile,
+        //   this.getActiveFileContent
+        // ),
+        code: this.getActiveFileContent
       });
       this.isCodeRunnig = true;
     },
@@ -314,6 +316,8 @@ export default {
       this.pyodideWorker.terminate();
       this.init();
       this.isInterpreterReady = false;
+      this.isCodeRunnig = false;
+      this.runWithDebugger = false;
     },
     clearOutput() {
       this.output = [];
@@ -335,14 +339,14 @@ export default {
 }
 
 .local-var-section {
-  width: 50%;
+  width: 100%;
   height: 25vh;
   background: #444;
   /* height: 100%; */
 }
 .output-section {
   height: 25vh;
-  width: 50%;
+  width: 100%;
   overflow-y: scroll;
   overflow-x: scroll;
   color: aliceblue;
@@ -378,5 +382,9 @@ export default {
     flex-grow: 10;
     background-color: #333;
   }
+}
+
+.width50 {
+  width: 50%;
 }
 </style>
