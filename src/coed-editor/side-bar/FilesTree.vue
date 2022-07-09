@@ -15,11 +15,25 @@
       <v-icon
         dark
         class="pointer icon-class"
+        @click="showFileCreateDialog = !showFileCreateDialog"
+      >
+        fa-solid fa-pen
+      </v-icon>
+      <v-icon
+        dark
+        class="pointer icon-class"
+        @click="showFileCreateDialog = !showFileCreateDialog"
+      >
+        fa-solid fa-trash
+      </v-icon>
+      <v-icon
+        dark
+        class="pointer icon-class"
         @click="showSearchBar = !showSearchBar"
       >
         fas fa-search
       </v-icon>
-      <v-icon dark class="pointer icon-class"> fas fa-ellipsis-v </v-icon>
+      <!-- <v-icon dark class="pointer icon-class"> fas fa-ellipsis-v </v-icon> -->
     </div>
     <v-text-field
       v-if="showSearchBar"

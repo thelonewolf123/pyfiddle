@@ -45,6 +45,9 @@ export default {
       if (this.files.length === 1) return;
       this.$emit("removeFileTitle", index);
       let newIndex = index - 1 >= 0 ? index - 1 : 0;
+      console.log("Removed index -> ", index);
+      console.log("New index -> ", newIndex);
+      console.log("New file -> ", this.files[newIndex]);
       this.changeActiveFile(this.files[newIndex]);
     },
   },

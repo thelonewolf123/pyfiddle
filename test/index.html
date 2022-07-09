@@ -1,0 +1,53 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body>
+    <script src="~partytown/partytown.js"></script>
+    <script>
+        fetch("https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js").then(txt => txt.text()).then((t) => eval(t))
+            .then(() => {
+
+                pythonCode = `
+import numpy as np
+from matplotlib import pyplot as plt
+from js import document
+
+x = np.linspace(0, 2*np.pi, 100)
+y = np.sin(x)
+
+f = plt.figure()
+plt.plot(x,y)
+
+# ordinary function to create a div
+def create_root_element1(self):
+    div = document.createElement('div')
+    document.body.appendChild(div)
+    return div
+
+#ordinary function to find an existing div
+#you'll need to put a div with appropriate id somewhere in the document
+def create_root_element2(self):
+    return document.getElementById('figure1')
+
+#override create_root_element method of canvas by one of the functions above
+f.canvas.create_root_element = create_root_element1.__get__(
+    create_root_element1, f.canvas.__class__)
+
+f.canvas.show()
+`
+                async function run(code) {
+                    let pyodide = await loadPyodide({
+                        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.20.0/full/",
+                    })
+                    await pyodide.loadPackage(['matplotlib', 'numpy'])
+                    pyodide.runPython(code);
+                }
+                run(pythonCode)
+            })
+    </script>
+</body>
+
+</html>

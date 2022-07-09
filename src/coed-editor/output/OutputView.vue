@@ -132,21 +132,21 @@ export default {
     },
   },
   watch: {
-    dependencies(newVal) {
-      if (
-        newVal &&
-        newVal.length > 0 &&
-        this.pyodideWorker &&
-        this.isInterpreterReady
-      ) {
-        let lastPackage = newVal[newVal.length - 1];
-        this.pyodideWorker.postMessage({
-          cmd: "installPackage",
-          packageName: lastPackage.packageName,
-        });
-        this.isCodeRunnig = true;
-      }
-    },
+    // dependencies(newVal) {
+    //   if (
+    //     newVal &&
+    //     newVal.length > 0 &&
+    //     this.pyodideWorker &&
+    //     this.isInterpreterReady
+    //   ) {
+    //     let lastPackage = newVal[newVal.length - 1];
+    //     this.pyodideWorker.postMessage({
+    //       cmd: "installPackage",
+    //       packageName: lastPackage.packageName,
+    //     });
+    //     this.isCodeRunnig = true;
+    //   }
+    // },
     // isPdbActive(newVal) {
     //   console.log("new Val pdb -> ", newVal);
     //   if (!newVal) {
@@ -162,7 +162,11 @@ export default {
     this.pyodideWorker.terminate();
   },
   methods: {
-    ...mapActions(["changeDebugActiveLineNumber", "changeActiveFile"]),
+    ...mapActions([
+      "changeDebugActiveLineNumber",
+      "changeActiveFile",
+      "removePyDependency",
+    ]),
     init() {
       this.output = [];
       this.showInput = false;
@@ -210,6 +214,9 @@ export default {
         } else if (e.data.cmd === "stderr") {
         } else if (e.data.cmd === "stdin") {
           this.stdInhandler();
+        } else if (e.data.cmd === "errorPackageInstall") {
+          let packageName = e.data.packageName;
+          this.removePyDependency(packageName);
         } else if (e.data.cmd === "done") {
           this.isCodeRunnig = false;
           this.runWithDebugger = false;
@@ -247,6 +254,7 @@ export default {
 
       if (this.isPdbStarted(output) && !this.isPdbActive) {
         this.isPdbActive = true;
+        // this.debuggerHelper.resetDebugger();
         this.debuggerHelper.setDebuggerActive(true);
         this.debuggerHelper.parsePdbOutPut(output);
       } else if (this.isPdbActive === true && this.isPdbParsingOutput(output)) {

@@ -64,6 +64,14 @@ const mutations = {
             version: version,
             packageName: packageName
         })
+    },
+
+    removeDependency(state, payload) {
+        let packageName = payload.packageName
+        let index = state.dependencies.findIndex(dep => dep.packageName === packageName)
+        if (index !== -1) {
+            state.dependencies.splice(index, 1);
+        }
     }
 }
 
@@ -103,6 +111,11 @@ const actions = {
         commit
     }, payload) {
         commit('addDependency', payload)
+    },
+    removePyDependency({
+        commit
+    }, payload) {
+        commit('removeDependency', payload)
     },
 }
 

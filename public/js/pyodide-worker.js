@@ -8,6 +8,11 @@ function removeNullBytes(str) {
     return str.split("").filter(char => char.codePointAt(0)).join("")
 }
 
+function sleep(t) {
+    let _AB = new Int32Array(new SharedArrayBuffer(4));
+    Atomics.wait(_AB, 0, 0, Math.max(1, t | 0));
+    return;
+}
 
 const stdinCallback = () => {
     postMessage({
@@ -17,7 +22,7 @@ const stdinCallback = () => {
     self.inputFlagBuffer[0] = 1;
 
     while (self.inputFlagBuffer[0] === 1) {
-        Atomics.wait(self.inputFlagBuffer, 0, 0, 200);
+        Atomics.wait(self.inputFlagBuffer, 0, 1, 200);
         self.pyodide.checkInterrupt();
     }
     // convert shared memory to a string
