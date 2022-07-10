@@ -67,7 +67,7 @@ const mutations = {
     },
 
     removeDependency(state, payload) {
-        let packageName = payload.packageName
+        let packageName = payload
         let index = state.dependencies.findIndex(dep => dep.packageName === packageName)
         if (index !== -1) {
             state.dependencies.splice(index, 1);

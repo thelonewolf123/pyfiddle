@@ -5,7 +5,6 @@ import router from "./router";
 import vuetify from '@/plugins/vuetify' // path to vuetify export
 import store from './store/store'
 
-
 Vue.config.productionTip = false;
 
 new Vue({

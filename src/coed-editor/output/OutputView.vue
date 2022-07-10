@@ -62,13 +62,16 @@
       <div class="output-section" :class="{ width50: runWithDebugger }">
         <div class="output" :key="index" v-for="(out, index) in output">
           <div class="output-line">
-            <div class="output-text">
-              {{ out }}
+            <div
+              class="output-text"
+              :class="{ 'output-error': out.type === 'stderr' }"
+            >
+              {{ out.value }}
             </div>
             <input
               v-if="showInput && index == output.length - 1"
               v-model="inputValue"
-              v-on:keyup.enter="submitInput"
+              v-on:keyup.enter="submitInput()"
               class="input-box"
             />
           </div>
@@ -112,6 +115,7 @@ export default {
       isWaitingForPdb: false,
       runWithDebugger: false,
       executedFileName: null,
+      lastOutputPrompt: null,
     };
   },
   computed: {
@@ -132,27 +136,21 @@ export default {
     },
   },
   watch: {
-    // dependencies(newVal) {
-    //   if (
-    //     newVal &&
-    //     newVal.length > 0 &&
-    //     this.pyodideWorker &&
-    //     this.isInterpreterReady
-    //   ) {
-    //     let lastPackage = newVal[newVal.length - 1];
-    //     this.pyodideWorker.postMessage({
-    //       cmd: "installPackage",
-    //       packageName: lastPackage.packageName,
-    //     });
-    //     this.isCodeRunnig = true;
-    //   }
-    // },
-    // isPdbActive(newVal) {
-    //   console.log("new Val pdb -> ", newVal);
-    //   if (!newVal) {
-    //     this.debuggerHelper.resetDebugger();
-    //   }
-    // },
+    dependencies(newVal) {
+      if (
+        newVal &&
+        newVal.length > 0 &&
+        this.pyodideWorker &&
+        this.isInterpreterReady
+      ) {
+        let lastPackage = newVal[newVal.length - 1];
+        this.pyodideWorker.postMessage({
+          cmd: "installPackage",
+          packageName: lastPackage.packageName,
+        });
+        this.isCodeRunnig = true;
+      }
+    },
   },
   mounted() {
     this.init();
@@ -212,6 +210,10 @@ export default {
           let outputPanel = document.querySelector(".output-section");
           outputPanel.scrollTop = outputPanel.scrollHeight;
         } else if (e.data.cmd === "stderr") {
+          this.output.push({
+            value: e.data.data,
+            type: "stderr",
+          });
         } else if (e.data.cmd === "stdin") {
           this.stdInhandler();
         } else if (e.data.cmd === "errorPackageInstall") {
@@ -223,15 +225,10 @@ export default {
         }
       };
     },
-    getFileSysObject(fileSystem, activeFileName, activeFileContent) {
+    getFileSysObject(fileSystem, activeFileName) {
       let fileSystemCopy = JSON.parse(JSON.stringify(fileSystem));
       fileSystemCopy = fileSystemCopy.filter((f) => f.name !== activeFileName);
       let newFileSystemObj = {
-        mainFile: {
-          name: activeFileName,
-          content: activeFileContent,
-          path: activeFileName,
-        },
         projectFiles: [],
       };
 
@@ -248,9 +245,11 @@ export default {
     },
     stdOutHandler(output) {
       if (!this.runWithDebugger) {
-        this.output.push(output);
+        this.output.push({ value: output, type: "stdout" });
         return;
       }
+
+      this.lastOutputPrompt = output;
 
       if (this.isPdbStarted(output) && !this.isPdbActive) {
         this.isPdbActive = true;
@@ -260,7 +259,7 @@ export default {
       } else if (this.isPdbActive === true && this.isPdbParsingOutput(output)) {
         this.debuggerHelper.parsePdbOutPut(output);
       } else if (output !== "--Return--" && output !== "--Call--") {
-        this.output.push(output);
+        this.output.push({ value: output, type: "stdout" });
       }
 
       if (this.debuggerHelper.getFileName() === "<executedMainFile>")
@@ -281,13 +280,11 @@ export default {
       else if (output.startsWith("<<")) return true;
       else if (output.startsWith("->")) return true;
       else if (output.startsWith("(Pdb) ")) return true;
-      else if (output.startsWith("pdb - trace")) return true;
       else if (output.startsWith("> /home/pyodide")) return true;
       return false;
     },
     isPdbStarted(output) {
       if (output && output.startsWith("> /home/pyodide")) return true;
-      else if (output && output === "pdb - trace") return true;
       else if (output && output.startsWith("> <exec>")) return true;
       else if (output && output === "(Pdb) ") return true;
       return false;
@@ -302,6 +299,13 @@ export default {
         this.showInput = true;
       }
 
+      this.isPdbActive = this.debuggerHelper.getDebuggerStatus();
+
+      if (this.lastOutputPrompt && this.lastOutputPrompt !== "(Pdb) ") {
+        this.showInput = true;
+        return;
+      }
+
       let cmd = this.debuggerHelper.getPdbCommand();
       if (this.isPdbActive && cmd !== "pause") {
         this.inputValue = cmd;
@@ -309,7 +313,6 @@ export default {
       } else {
         this.isWaitingForPdb = true;
       }
-      this.isPdbActive = this.debuggerHelper.getDebuggerStatus();
     },
     continueExecutionHandler() {
       this.inputValue = "continue";
@@ -335,11 +338,7 @@ export default {
       this.debuggerHelper.resetDebugger();
       this.pyodideWorker.postMessage({
         cmd: "runCode",
-        files: this.getFileSysObject(
-          this.getFileSystem,
-          this.getActiveFile,
-          this.getActiveFileContent
-        ),
+        files: this.getFileSysObject(this.getFileSystem, this.getActiveFile),
         code: this.getActiveFileContent,
       });
       this.executedFileName = this.getActiveFile;
@@ -351,7 +350,10 @@ export default {
 
       if (!excludeOutput) {
         let inputPrompt = this.output.pop();
-        this.output.push(`${inputPrompt} ${inputValue}`);
+        this.output.push({
+          value: `${inputPrompt.value} ${inputValue}`,
+          type: "stdout",
+        });
       }
 
       this.showInput = false;
@@ -440,6 +442,10 @@ export default {
     flex-grow: 10;
     background-color: #333;
   }
+}
+
+.output-text.output-error {
+  color: red;
 }
 
 .width50 {

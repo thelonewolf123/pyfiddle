@@ -4,7 +4,7 @@
       <v-app dark>
         <v-app-bar app>
           <!-- -->
-          <div class="header-text">PyCompiler.io</div>
+          <div class="header-text">PyFiddle</div>
         </v-app-bar>
         <!-- Sizes your content based upon application components -->
         <v-main>

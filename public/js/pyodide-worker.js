@@ -8,11 +8,11 @@ function removeNullBytes(str) {
     return str.split("").filter(char => char.codePointAt(0)).join("")
 }
 
-function sleep(t) {
-    let _AB = new Int32Array(new SharedArrayBuffer(4));
-    Atomics.wait(_AB, 0, 0, Math.max(1, t | 0));
-    return;
-}
+// function sleep(t) {
+//     let _AB = new Int32Array(new SharedArrayBuffer(4));
+//     Atomics.wait(_AB, 0, 0, Math.max(1, t | 0));
+//     return;
+// }
 
 const stdinCallback = () => {
     postMessage({
@@ -64,6 +64,7 @@ const initPyiodide = async () => {
             return sys.stdin.readline().strip()
 
         builtins.input = input_fixed
+
         async def init():
             fileArr = ["codeEngine.py", "debugger.py", "codeRunner.py"]
             for fileName in fileArr:
@@ -75,25 +76,33 @@ const initPyiodide = async () => {
     await runCode(fetchCodeEngine);
 }
 
-const doneFunc = () => {
+const done = () => {
     postMessage({
         cmd: "done"
     });
 }
 
 const runCodeFromFileSysObj = async (files) => {
-    codeEngine = self.pyodide.pyimport("codeRunner");
-    codeEngine.runCode(JSON.stringify(files));
+    let codeRunner = self.pyodide.pyimport("codeRunner");
+    codeRunner.runCode(JSON.stringify(files));
 }
 
 const installPackage = async (packageName) => {
     try {
-        await self.pyodide.loadPackage([packageName]);
+        let pyCode = `
+import micropip
+print("installing -> ", "${packageName}")
+await micropip.install("${packageName}")
+print("Package installed -> ", "${packageName}")
+        `
+        await self.pyodide.runPythonAsync(pyCode);
         postMessage({
             cmd: "packageInstallDone",
             packageName: packageName
         });
     } catch (err) {
+        console.error(err);
+        stderrCallback(`Installation failed -> ${packageName}`)
         postMessage({
             cmd: "errorPackageInstall",
             packageName: packageName
@@ -105,7 +114,10 @@ const runCode = async (code, callBack, errorCB) => {
     await self.pyodide.runPythonAsync(code).then(() => {
         if (callBack) callBack();
     }).catch((err) => {
-        console.error(err)
+        postMessage({
+            cmd: "stderr",
+            data: err
+        });
         if (errorCB) errorCB();
     });
 }
@@ -122,9 +134,9 @@ onmessage = (msg) => {
 
     } else if (msg.data.cmd === "runCode") {
         runCodeFromFileSysObj(msg.data.files);
-        runCode(msg.data.code, doneFunc, doneFunc);
+        runCode(msg.data.code, done, done);
     } else if (msg.data.cmd === "installPackage") {
-        installPackage(msg.data.packageName).then(doneFunc);
+        installPackage(msg.data.packageName).then(done);
     } else if (msg.data.cmd === "setInputBuffer") {
         self.inputFlagBuffer = msg.data.inputFlagBuffer
         self.inputValueBuffer = msg.data.inputValueBuffer

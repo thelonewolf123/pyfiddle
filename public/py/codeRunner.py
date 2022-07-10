@@ -13,8 +13,7 @@ class CodeEngine:
     mainFile: CodeFile
     projectFiles = []
 
-    def __init__(self, mainFile, projectFiles) -> None:
-        self.mainFile = mainFile
+    def __init__(self, projectFiles) -> None:
         self.projectFiles = projectFiles
 
     def run(self):
@@ -25,9 +24,8 @@ class CodeEngine:
 
 def runCode(codeJson):
     code = json.loads(codeJson)
-    mainFile = CodeFile(code["mainFile"]["content"],code["mainFile"]["name"], code["mainFile"]["path"])
     projectFiles = []
     for projectFile in code["projectFiles"]:
         projectFiles.append(CodeFile(projectFile["content"], projectFile["name"], projectFile["path"]))
-    codeEngine = CodeEngine(mainFile, projectFiles)
+    codeEngine = CodeEngine(projectFiles)
     codeEngine.run()

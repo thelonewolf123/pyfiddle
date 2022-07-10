@@ -15,14 +15,16 @@
       <v-icon
         dark
         class="pointer icon-class"
-        @click="showFileCreateDialog = !showFileCreateDialog"
+        @click="showFileRenameDialog = !showFileRenameDialog"
+        :disabled="!activeItems.length"
       >
         fa-solid fa-pen
       </v-icon>
       <v-icon
         dark
         class="pointer icon-class"
-        @click="showFileCreateDialog = !showFileCreateDialog"
+        @click="showFileDeleteDialog = !showFileDeleteDialog"
+        :disabled="!activeItems.length"
       >
         fa-solid fa-trash
       </v-icon>
@@ -91,6 +93,43 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="showFileDeleteDialog" width="500" attach="body">
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Delete File
+        </v-card-title>
+        Do you want to delete {{ getActiveFile }}?
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="deleteFile"> Confirm </v-btn>
+          <v-btn text @click="showFileDeleteDialog = false"> Cancel </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="showFileRenameDialog" width="500" attach="body">
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Rename File
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            label="File name"
+            v-model="fileName"
+            :value="getActiveFile"
+            hide-details="auto"
+          ></v-text-field>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="renameFile"> Confirm </v-btn>
+          <v-btn text @click="showFileRenameDialog = false"> Cancel </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -140,6 +179,8 @@ export default {
     caseSensitive: false,
     inputValue: null,
     showFileCreateDialog: false,
+    showFileDeleteDialog: false,
+    showFileRenameDialog: false,
     fileName: "",
   }),
   methods: {
@@ -153,6 +194,12 @@ export default {
       this.addFile(fileObj);
       this.showFileCreateDialog = false;
       this.fileName = "";
+    },
+    deleteFile() {
+      console.log(this.fileName);
+    },
+    renameFile() {
+      console.log(this.fileName);
     },
   },
 };
