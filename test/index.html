@@ -6,7 +6,7 @@
 
 <body>
     <script src="~partytown/partytown.js"></script>
-    <script>
+    <script type="text/partytown">
         fetch("https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js").then(txt => txt.text()).then((t) => eval(t))
             .then(() => {
 
@@ -49,5 +49,4 @@ f.canvas.show()
             })
     </script>
 </body>
-
 </html>
