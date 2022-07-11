@@ -76,6 +76,7 @@ export default {
       this.changeActiveFileContent(newCode);
     },
     removeFileTitle(index) {
+      console.log(index);
       this.fileTitles.splice(index, 1);
     },
   },
