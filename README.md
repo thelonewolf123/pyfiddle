@@ -38,6 +38,8 @@ I used PDB module to implement the debugger. Since I was taken care of most of t
 - Use the below code to test the debugger.
 
 ```
+# main.py
+
 class Adder:
     def __init__(self):
         self.a = 4
@@ -48,13 +50,10 @@ class Adder:
         
 adder = Adder()
 b = adder.execute(7)
-print(f'Result -> {b}')
-print(f'Result -> {b}')
 breakpoint()
 a = input("Enter a number : ")
 breakpoint()
 print("A number: ", a)
-print(f'Result -> {b}')
 print(f'Result -> {b}')
 
 ```
