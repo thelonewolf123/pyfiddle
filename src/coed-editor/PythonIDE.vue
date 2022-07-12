@@ -49,6 +49,7 @@ export default {
   watch: {
     fileName(newVal) {
       if (newVal) {
+        console.log(newVal);
         this.fileContent = this.getActiveFileContent;
         let index = this.fileTitles.findIndex((t) => t === newVal);
         if (index !== -1) return;
