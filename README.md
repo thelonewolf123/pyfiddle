@@ -37,7 +37,7 @@ I used PDB module to implement the debugger. Since I was taken care of most of t
 ### Test code:
 - Use the below code to test the debugger.
 
-```
+```py
 # main.py
 
 class Adder:
