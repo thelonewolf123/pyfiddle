@@ -6,7 +6,7 @@
         v-if="!isCodeRunnig"
         class="pointer icon-class"
         @click="runCode"
-        :disabled="!isInterpreterReady"
+        :disabled="!isInterpreterReady && !getActiveFile"
       >
         fa-solid fa-play
       </v-icon>
@@ -23,7 +23,7 @@
         dark
         class="pointer icon-class"
         @click="runWithDebuggerHandler"
-        :disabled="!isInterpreterReady"
+        :disabled="!isInterpreterReady && !getActiveFile"
       >
         fa-solid fa-bug
       </v-icon>
@@ -72,7 +72,8 @@
               v-if="showInput && index == output.length - 1"
               v-model="inputValue"
               v-on:keyup.enter="submitInput()"
-              class="input-box"
+              ref="inputBoxStdin"
+              autofocus
             />
           </div>
         </div>
@@ -151,6 +152,9 @@ export default {
         this.isCodeRunnig = true;
       }
     },
+    // showInput() {
+    //   this.$refs.inputBoxStdin.$el.focus();
+    // },
   },
   mounted() {
     this.init();
@@ -371,7 +375,7 @@ export default {
       Atomics.notify(this.inputFlagBuffer, 0, 1);
     },
     stopExecution() {
-      // set interupt buffer to 2 to stop execution
+      // set interrupt buffer to 2 to stop execution
       this.interruptBuffer[0] = 2;
       this.pyodideWorker.terminate();
       this.init();
@@ -391,7 +395,7 @@ export default {
   height: calc(25vh + 40px);
   width: 100%;
   overflow: hidden;
-  background: #444;
+  background: #222;
 }
 
 .output-and-debug-section {
