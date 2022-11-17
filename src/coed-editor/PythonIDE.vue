@@ -11,8 +11,9 @@
         <monaco-editor-vue
           style="width: 100%; height: calc(75vh - 140px)"
           :code="fileContent"
-          language="python"
+          :language="languageMap[fileName.split('.').pop()]"
           theme="vs-dark"
+          :filename="getActiveFile"
           :debuggerLineNumber="getDebuggerLineNumber"
           @codeChanged="codeChanged"
         ></monaco-editor-vue>
@@ -61,6 +62,12 @@ export default {
     return {
       fileContent: null,
       fileTitles: [],
+      languageMap: {
+        py: "python",
+        cpp: "cpp",
+        json: "json",
+        txt: "plaintext",
+      },
     };
   },
   mounted() {

@@ -3,7 +3,7 @@
     <div class="control-bar">
       <v-icon
         dark
-        v-if="!isCodeRunnig"
+        v-if="!isCodeRunning"
         class="pointer icon-class"
         @click="runCode"
         :disabled="!isInterpreterReady && !getActiveFile"
@@ -11,7 +11,7 @@
         fa-solid fa-play
       </v-icon>
       <v-icon
-        v-show="isCodeRunnig"
+        v-show="isCodeRunning"
         dark
         class="pointer icon-class"
         @click="stopExecution"
@@ -19,7 +19,7 @@
         fa-solid fa-stop
       </v-icon>
       <v-icon
-        v-if="!isCodeRunnig"
+        v-if="!isCodeRunning"
         dark
         class="pointer icon-class"
         @click="runWithDebuggerHandler"
@@ -54,7 +54,12 @@
       >
         fa-solid fa-caret-down
       </v-icon>
-      <v-icon dark class="pointer icon-class" @click="clearOutput">
+      <v-icon
+        dark
+        class="pointer icon-class"
+        :disabled="isCodeRunning"
+        @click="clearOutput"
+      >
         fas fa-eraser
       </v-icon>
     </div>
@@ -110,7 +115,7 @@ export default {
       interruptBuffer: null,
       inputFlagBuffer: null,
       inputValueBuffer: null,
-      isCodeRunnig: false,
+      isCodeRunning: false,
       localVariables: null,
       debuggerHelper: null,
       isWaitingForPdb: false,
@@ -149,7 +154,7 @@ export default {
           cmd: "installPackage",
           packageName: lastPackage.packageName,
         });
-        this.isCodeRunnig = true;
+        this.isCodeRunning = true;
       }
     },
     // showInput() {
@@ -200,7 +205,7 @@ export default {
             inputValueBuffer: this.inputValueBuffer,
           });
           this.dependencies.forEach((dep) => {
-            this.isCodeRunnig = true;
+            this.isCodeRunning = true;
             this.pyodideWorker.postMessage({
               cmd: "installPackage",
               packageName: dep.packageName,
@@ -224,7 +229,7 @@ export default {
           let packageName = e.data.packageName;
           this.removePyDependency(packageName);
         } else if (e.data.cmd === "done") {
-          this.isCodeRunnig = false;
+          this.isCodeRunning = false;
           this.runWithDebugger = false;
         }
       };
@@ -346,7 +351,7 @@ export default {
         code: this.getActiveFileContent,
       });
       this.executedFileName = this.getActiveFile;
-      this.isCodeRunnig = true;
+      this.isCodeRunning = true;
     },
     submitInput(excludeOutput) {
       let inputValue = this.inputValue ? this.inputValue : "";
@@ -380,7 +385,7 @@ export default {
       this.pyodideWorker.terminate();
       this.init();
       this.isInterpreterReady = false;
-      this.isCodeRunnig = false;
+      this.isCodeRunning = false;
       this.runWithDebugger = false;
     },
     clearOutput() {
