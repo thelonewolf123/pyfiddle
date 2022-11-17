@@ -5,12 +5,8 @@ Vue.use(Vuex)
 
 
 const state = {
-    fileSystem: [{
-        name: "main.py",
-        content: "print('hello from script')",
-        file: "py",
-    }, ],
-    activeFile: "main.py",
+    fileSystem: [],
+    activeFile: "",
     activeFileContent: "",
     dependencies: [],
     debuggerLineNumber: null,
@@ -38,6 +34,11 @@ const mutations = {
     },
     addFileNewFile: (state, payload) => {
         state.fileSystem.push(payload)
+        state.fileSystem = state.fileSystem.sort((a, b) => a.name.localeCompare(b.name))
+    },
+    removeFileNewFile: (state, payload) => {
+        console.log("delete ", payload)
+        state.fileSystem = state.fileSystem.filter(s => s.name !== payload.name)
     },
     setActiveFile: (state, payload) => {
         state.activeFile = payload
@@ -46,11 +47,9 @@ const mutations = {
         let index = state.fileSystem.findIndex(f => f.name === state.activeFile)
         state.fileSystem[index].content = payload
     },
-
     setDebuggerLineNumber(state, payload) {
         state.debuggerLineNumber = payload
     },
-
     addDependency(state, payload) {
         let version = payload.version
         let packageName = payload.packageName
@@ -65,7 +64,6 @@ const mutations = {
             packageName: packageName
         })
     },
-
     removeDependency(state, payload) {
         let packageName = payload
         let index = state.dependencies.findIndex(dep => dep.packageName === packageName)
@@ -90,6 +88,11 @@ const actions = {
         commit
     }, file) => {
         commit('addFileNewFile', file)
+    },
+    removeFile: ({
+        commit
+    }, file) => {
+        commit('removeFileNewFile', file)
     },
     changeActiveFileContent({
         commit

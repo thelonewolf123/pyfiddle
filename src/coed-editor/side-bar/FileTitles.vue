@@ -4,7 +4,7 @@
       class="single-file-title"
       :class="{ 'active-file': fileName === activeFile }"
       :key="index"
-      @click="handerTitleClick(fileName)"
+      @click="handlerTitleClick(fileName)"
       v-for="(fileName, index) in files"
     >
       <div class="file-name-section">
@@ -15,6 +15,7 @@
         class="icon-x-mark"
         @click="handlerDeleteClick(index, fileName)"
         style="margin-top: 7px"
+        v-if="files.length > 1"
       >
         fa-solid fa-xmark
       </v-icon>
@@ -23,7 +24,7 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   props: {
@@ -36,18 +37,27 @@ export default {
       required: true,
     },
   },
+  computed: {
+    ...mapGetters(["getFileSystem"]),
+  },
+  watch: {
+    getFileSystem(fileSystem) {
+      this.files.map((fileName, index) => {
+        const isFileExist = fileSystem.find(({ name }) => name === fileName);
+        if (isFileExist) return;
+        this.handlerDeleteClick(index);
+      });
+    },
+  },
   methods: {
     ...mapActions(["changeActiveFile"]),
-    handerTitleClick(fileName) {
+    handlerTitleClick(fileName) {
       this.changeActiveFile(fileName);
     },
     handlerDeleteClick(index) {
       if (this.files.length === 1) return;
       this.$emit("removeFileTitle", index);
       let newIndex = index - 1 >= 0 ? index - 1 : 0;
-      console.log("Removed index -> ", index);
-      console.log("New index -> ", newIndex);
-      console.log("New file -> ", this.files[newIndex]);
       this.changeActiveFile(this.files[newIndex]);
     },
   },

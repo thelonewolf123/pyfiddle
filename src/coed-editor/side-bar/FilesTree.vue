@@ -8,14 +8,14 @@
       <v-icon
         dark
         class="pointer icon-class"
-        @click="showFileCreateDialog = !showFileCreateDialog"
+        @click="showNewFileBox = !showNewFileBox"
       >
         fa-solid fa-file-circle-plus
       </v-icon>
       <v-icon
         dark
         class="pointer icon-class"
-        @click="showFileRenameDialog = !showFileRenameDialog"
+        @click="showRenameFileAction"
         :disabled="!activeItems.length"
       >
         fa-solid fa-pen
@@ -23,7 +23,7 @@
       <v-icon
         dark
         class="pointer icon-class"
-        @click="showFileDeleteDialog = !showFileDeleteDialog"
+        @click="deleteFile"
         :disabled="!activeItems.length"
       >
         fa-solid fa-trash
@@ -41,13 +41,34 @@
       v-if="showSearchBar"
       v-model="search"
       class="search-box"
-      label="Search files"
+      label="search files..."
       dark
-      flat
       solo
       hide-details
       clearable
       clear-icon="mdi-close-circle-outline"
+    ></v-text-field>
+    <v-text-field
+      v-if="showNewFileBox"
+      v-model="fileName"
+      class="search-box"
+      label="file name"
+      dark
+      solo
+      hide-details
+      clear-icon="mdi-close-circle-outline"
+      @keyup.enter="addNewFile"
+    ></v-text-field>
+    <v-text-field
+      v-if="showRenameFileBox"
+      v-model="fileName"
+      class="search-box"
+      label="file name"
+      dark
+      solo
+      hide-details
+      clear-icon="mdi-close-circle-outline"
+      @keyup.enter="renameFile"
     ></v-text-field>
     <v-treeview
       v-model="tree"
@@ -71,65 +92,6 @@
         </v-icon>
       </template>
     </v-treeview>
-    <v-dialog v-model="showFileCreateDialog" width="500" attach="body">
-      <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
-          Create File
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            label="File name"
-            v-model="fileName"
-            hide-details="auto"
-          ></v-text-field>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="addNewFile"> Save </v-btn>
-          <v-btn text @click="showFileCreateDialog = false"> Cancel </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-model="showFileDeleteDialog" width="500" attach="body">
-      <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
-          Delete File
-        </v-card-title>
-        Do you want to delete {{ getActiveFile }}?
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="deleteFile"> Confirm </v-btn>
-          <v-btn text @click="showFileDeleteDialog = false"> Cancel </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-model="showFileRenameDialog" width="500" attach="body">
-      <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
-          Rename File
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            label="File name"
-            v-model="fileName"
-            :value="getActiveFile"
-            hide-details="auto"
-          ></v-text-field>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="renameFile"> Confirm </v-btn>
-          <v-btn text @click="showFileRenameDialog = false"> Cancel </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -143,7 +105,7 @@ export default {
         ? (item, search, textKey) => item[textKey].indexOf(search) > -1
         : undefined;
     },
-    ...mapGetters(["getFileSystem", "getActiveFile"]),
+    ...mapGetters(["getFileSystem", "getActiveFile", "getActiveFileContent"]),
   },
   watch: {
     activeItems(newVal) {
@@ -171,35 +133,70 @@ export default {
       xls: "mdi-file-excel",
       py: "mdi-language-python",
     },
-    iframe: null,
     tree: [],
     activeItems: [],
     showSearchBar: false,
+    showNewFileBox: false,
+    showRenameFileBox: false,
     search: null,
     caseSensitive: false,
     inputValue: null,
-    showFileCreateDialog: false,
-    showFileDeleteDialog: false,
-    showFileRenameDialog: false,
     fileName: "",
   }),
   methods: {
-    ...mapActions(["addFile", "changeActiveFile"]),
+    ...mapActions(["addFile", "changeActiveFile", "removeFile"]),
     addNewFile() {
+      if (!this.fileName) {
+        this.$notify("can't create a file with empty file name.");
+        return;
+      }
       let fileObj = {
         name: this.fileName,
         content: "",
-        file: "py",
+        file: this.fileName.split(".").pop(),
       };
       this.addFile(fileObj);
       this.showFileCreateDialog = false;
       this.fileName = "";
+      this.showNewFileBox = false;
     },
     deleteFile() {
       console.log(this.fileName);
+      const result = confirm(
+        `Do you really want to delete ${this.getActiveFile}?`
+      );
+
+      if (!result) return;
+
+      this.removeFile({
+        name: this.getActiveFile,
+      });
+    },
+    showRenameFileAction() {
+      this.showRenameFileBox = !this.showRenameFileBox;
+      if (this.showRenameFileBox) {
+        this.fileName = this.getActiveFile;
+      }
     },
     renameFile() {
-      console.log(this.fileName);
+      if (!this.fileName) {
+        this.$notify("can't save a file with empty file name.");
+        return;
+      }
+
+      let fileObj = {
+        name: this.fileName,
+        content: this.getActiveFileContent,
+        file: this.fileName.split(".").pop(),
+      };
+      this.removeFile({
+        name: this.getActiveFile,
+      });
+
+      this.addFile(fileObj);
+      this.showRenameFileBox = false;
+      this.fileName = "";
+      this.showNewFileBox = false;
     },
   },
 };
@@ -212,7 +209,7 @@ export default {
 }
 
 .search-box {
-  padding: 20px !important;
+  padding: 4px !important;
 }
 .file-actions-bar {
   background: #222;
