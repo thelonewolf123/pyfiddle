@@ -59,6 +59,7 @@ export default {
 <style>
 .header-text {
   color: #fff;
+  font-size: large;
 }
 
 .home-body-section {

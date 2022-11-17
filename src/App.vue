@@ -4,7 +4,11 @@
       <v-app dark>
         <v-app-bar app>
           <!-- -->
-          <div class="header-text">PyFiddle</div>
+          <a class="header-text url" href="/">PyFiddle</a>
+          <div class="url-links">
+            <a class="url" href="/compiler">compiler</a>
+            <a class="url" href="/about">about</a>
+          </div>
         </v-app-bar>
         <!-- Sizes your content based upon application components -->
         <v-main>
@@ -23,5 +27,19 @@
 body {
   margin: 0;
   padding: 0;
+}
+
+.url-links {
+  display: flex;
+  width: 100%;
+  justify-content: right;
+  align-content: center;
+  align-items: center;
+}
+
+.url {
+  padding-left: 20px;
+  text-decoration: none;
+  color: gainsboro !important;
 }
 </style>
