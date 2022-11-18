@@ -153,7 +153,7 @@ export default {
       }
       let fileObj = {
         name: this.fileName,
-        content,
+        content: this.content,
         file: this.fileName.split(".").pop(),
       };
       this.addFile(fileObj);
@@ -191,7 +191,7 @@ export default {
 
       let fileObj = {
         name: this.fileName,
-        content,
+        content: this.content,
         file: this.fileName.split(".").pop(),
       };
 
