@@ -4,12 +4,11 @@
       PyFiddle - Stackblitz for Python
     </h1>
     <p>
-      PyFiddle (<a href="https://pyfiddle.vercel.app/compiler"
-        >https://pyfiddle.vercel.app/compiler</a
-      >) is a python equivalent for JsFiddle. It has a dependency management
-      system just like codesandbox so people can work on complex projects and it
-      also has a built-in debugger, so it can be highly useful for competitive
-      coding and other coding tasks that require code flow analysis.
+      <a href="https://pyfiddle.vercel.app/compiler">PyFiddle</a> is a python
+      equivalent for JsFiddle. It has a dependency management system just like
+      codesandbox so people can work on complex projects and it also has a
+      built-in debugger, so it can be highly useful for competitive coding and
+      other coding tasks that require code flow analysis.
     </p>
     <h2 id="tech-stack">Tech stack:</h2>
     <ul>
