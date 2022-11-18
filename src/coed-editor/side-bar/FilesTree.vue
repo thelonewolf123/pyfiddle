@@ -142,6 +142,7 @@ export default {
     caseSensitive: false,
     inputValue: null,
     fileName: "",
+    content: "",
   }),
   methods: {
     ...mapActions(["addFile", "changeActiveFile", "removeFile"]),
@@ -152,7 +153,7 @@ export default {
       }
       let fileObj = {
         name: this.fileName,
-        content: "",
+        content,
         file: this.fileName.split(".").pop(),
       };
       this.addFile(fileObj);
@@ -176,6 +177,10 @@ export default {
       this.showRenameFileBox = !this.showRenameFileBox;
       if (this.showRenameFileBox) {
         this.fileName = this.getActiveFile;
+        this.content = this.getActiveFileContent;
+      } else {
+        this.fileName = "";
+        this.content = "";
       }
     },
     renameFile() {
@@ -186,9 +191,10 @@ export default {
 
       let fileObj = {
         name: this.fileName,
-        content: this.getActiveFileContent,
+        content,
         file: this.fileName.split(".").pop(),
       };
+
       this.removeFile({
         name: this.getActiveFile,
       });
@@ -197,6 +203,7 @@ export default {
       this.showRenameFileBox = false;
       this.fileName = "";
       this.showNewFileBox = false;
+      this.content = "";
     },
   },
 };

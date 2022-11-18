@@ -38,16 +38,16 @@ export default {
       globalId: 0,
       activeVarList: [],
       transformedVariableList: [],
-      variableTypes: [
-        "function",
-        "class",
-        "module",
-        "list",
-        "dict",
-        "str",
-        "tuple",
-        "int",
-      ],
+      // variableTypes: [
+      //   "function",
+      //   "class",
+      //   "module",
+      //   "list",
+      //   "dict",
+      //   "str",
+      //   "tuple",
+      //   "int",
+      // ],
     };
   },
   methods: {

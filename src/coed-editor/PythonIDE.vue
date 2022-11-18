@@ -67,6 +67,8 @@ export default {
         cpp: "cpp",
         json: "json",
         txt: "plaintext",
+        md: "markdown",
+        js: "javascript",
       },
     };
   },
