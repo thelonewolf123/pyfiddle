@@ -178,6 +178,9 @@ export default {
       if (this.showRenameFileBox) {
         this.fileName = this.getActiveFile;
         this.content = this.getActiveFileContent;
+        this.removeFile({
+          name: this.getActiveFile,
+        });
       } else {
         this.fileName = "";
         this.content = "";
@@ -194,10 +197,6 @@ export default {
         content: this.content,
         file: this.fileName.split(".").pop(),
       };
-
-      this.removeFile({
-        name: this.getActiveFile,
-      });
 
       this.addFile(fileObj);
       this.showRenameFileBox = false;
