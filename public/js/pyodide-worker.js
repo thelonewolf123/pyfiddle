@@ -59,8 +59,8 @@ const initPyiodide = async () => {
         import sys
         import builtins
 
-        def input_fixed(promt=''):
-            print(promt)
+        def input_fixed(prompt=''):
+            print(prompt)
             return sys.stdin.readline().strip()
 
         builtins.input = input_fixed
