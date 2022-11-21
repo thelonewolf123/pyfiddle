@@ -14,14 +14,14 @@ def fetchVariableMap(variableMap, level):
         return resultMap
 
     resultMap = {}
-    interator = []
+    integrator = []
 
     if type(variableMap) is dict:
-        interator = variableMap.keys()
+        integrator = variableMap.keys()
     else:
-        interator = dir(variableMap)
+        integrator = dir(variableMap)
 
-    for key in interator:
+    for key in integrator:
         resultMap[key] = {}
         value = None
         if '__' not in key:
