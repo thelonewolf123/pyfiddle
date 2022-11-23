@@ -66,7 +66,7 @@ const initPyiodide = async () => {
         builtins.input = input_fixed
 
         async def init():
-            fileArr = ["codeEngine.py", "debugger.py", "codeRunner.py"]
+            fileArr = ["codeEngine.py", "debugger.py", "codeRunner.py", "syncFiles.py"]
             for fileName in fileArr:
                 response = await pyfetch("/py/" + fileName)
                 with open(fileName, "wb") as f:
@@ -122,6 +122,15 @@ const runCode = async (code, callBack, errorCB) => {
     });
 }
 
+const syncFiles = async () => {
+    const fileSyncService = self.pyodide.pyimport("syncFiles");
+    const result = fileSyncService.getFileSystemContents();
+    postMessage({
+        cmd: "syncFiles",
+        data: result
+    });
+}
+
 onmessage = (msg) => {
     if (msg.data.cmd === "init") {
         initPyiodide().then(() => {
@@ -140,5 +149,7 @@ onmessage = (msg) => {
     } else if (msg.data.cmd === "setInputBuffer") {
         self.inputFlagBuffer = msg.data.inputFlagBuffer
         self.inputValueBuffer = msg.data.inputValueBuffer
+    } else if (msg.data.cmd === "syncFiles") {
+        syncFiles()
     }
 };
