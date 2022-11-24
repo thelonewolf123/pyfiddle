@@ -229,8 +229,13 @@ export default {
           let packageName = e.data.packageName;
           this.removePyDependency(packageName);
         } else if (e.data.cmd === "done") {
+          this.pyodideWorker.postMessage({
+            cmd: "syncFiles",
+          });
           this.isCodeRunning = false;
           this.runWithDebugger = false;
+        } else if (e.data.cmd === "syncFiles") {
+          console.log(e.data.data);
         }
       };
     },

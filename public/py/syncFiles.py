@@ -1,5 +1,5 @@
 import os
-
+import json
 engine_files = ['codeEngine.py', 'debugger.py',
                 'codeRunner.py', 'syncFiles.py']
 
@@ -33,4 +33,4 @@ def fetchAllFiles(path, depth):
 
 def getFileSystemContents():
     fetchAllFiles('.', 0)
-    return file_data_map
+    return json.dumps(file_data_map)
