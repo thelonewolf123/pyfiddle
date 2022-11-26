@@ -3,12 +3,12 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 
-
 const state = {
     fileSystem: [],
     activeFile: "",
     activeFileContent: "",
     dependencies: [],
+    currentUser: null,
     debuggerLineNumber: null,
     debuggerFileName: null
 }
@@ -23,6 +23,7 @@ const getters = {
     },
     getDependencies: state => state.dependencies,
     getDebuggerLineNumber: state => state.debuggerLineNumber,
+    currentUser: state => state.currentUser
 }
 
 const mutations = {
@@ -70,6 +71,9 @@ const mutations = {
         if (index !== -1) {
             state.dependencies.splice(index, 1);
         }
+    },
+    updateCurrentUser(state, payload) {
+        state.currentUser = payload
     }
 }
 
@@ -120,6 +124,11 @@ const actions = {
     }, payload) {
         commit('removeDependency', payload)
     },
+    updateCurrentUser({
+        commit
+    }, payload) {
+        commit('updateCurrentUser', payload)
+    }
 }
 
 export default new Vuex.Store({

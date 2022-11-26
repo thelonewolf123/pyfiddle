@@ -8,9 +8,9 @@
           <div class="url-links">
             <a class="url" href="/compiler">compiler</a>
             <a class="url" href="/about">about</a>
-            <a class="url" v-if="!isUserSignedIn" href="/login">login</a>
-            <a class="url" v-if="!isUserSignedIn" href="/signup">register</a>
-            <a class="url" v-if="isUserSignedIn" href="/logout">logout</a>
+            <a class="url" v-if="!currentUser" href="/login">login</a>
+            <a class="url" v-if="!currentUser" href="/signup">register</a>
+            <a class="url" v-if="currentUser" href="/logout">logout</a>
           </div>
         </v-app-bar>
         <!-- Sizes your content based upon application components -->
@@ -27,14 +27,10 @@
 </template>
 
 <script>
-import { getAuth } from "firebase/auth";
+import { mapGetters } from "vuex";
 export default {
   computed: {
-    isUserSignedIn() {
-      const auth = getAuth();
-
-      return auth.currentUser ? true : false;
-    },
+    ...mapGetters(["currentUser"]),
   },
 };
 </script>

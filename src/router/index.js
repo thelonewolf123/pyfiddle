@@ -50,7 +50,7 @@ const routes = [{
     component: () =>
       import( /* webpackChunkName: "logout" */ "../user/logout-component.vue"),
     meta: {
-      authRequired: false, // change it to true later on
+      authRequired: true, // change it to true later on
     },
   },
 ];

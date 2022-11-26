@@ -5,11 +5,12 @@ import {
 import {
     getAnalytics
 } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import {
+    getAuth,
+    onAuthStateChanged
+} from 'firebase/auth'
+import store from '../store/store'
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
     apiKey: "AIzaSyDGEw4n-LmSKmDStFY-D5JnfcVqI_lDGgM",
     authDomain: "pyfiddle-dacc5.firebaseapp.com",
@@ -23,3 +24,10 @@ const firebaseConfig = {
 // Initialize Firebase
 export const firebaseApp = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(firebaseApp);
+
+// auth state
+const auth = getAuth()
+onAuthStateChanged(auth, (user) => {
+    if (user) store.dispatch('updateCurrentUser', user)
+    else store.dispatch('updateCurrentUser', null)
+})
