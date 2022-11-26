@@ -92,7 +92,7 @@ const installPackage = async (packageName) => {
         let pyCode = `
 import micropip
 print("installing -> ", "${packageName}")
-await micropip.install("${packageName}")
+await micropip.install("${packageName}", keep_going=True)
 print("Package installed -> ", "${packageName}")
         `
         await self.pyodide.runPythonAsync(pyCode);
