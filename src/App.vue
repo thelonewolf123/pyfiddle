@@ -8,6 +8,9 @@
           <div class="url-links">
             <a class="url" href="/compiler">compiler</a>
             <a class="url" href="/about">about</a>
+            <a class="url" v-if="!isUserSignedIn" href="/login">login</a>
+            <a class="url" v-if="!isUserSignedIn" href="/signup">register</a>
+            <a class="url" v-if="isUserSignedIn" href="/logout">logout</a>
           </div>
         </v-app-bar>
         <!-- Sizes your content based upon application components -->
@@ -22,6 +25,19 @@
     </div>
   </div>
 </template>
+
+<script>
+import { getAuth } from "firebase/auth";
+export default {
+  computed: {
+    isUserSignedIn() {
+      const auth = getAuth();
+
+      return auth.currentUser ? true : false;
+    },
+  },
+};
+</script>
 
 <style>
 body {
