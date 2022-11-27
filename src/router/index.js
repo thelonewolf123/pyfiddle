@@ -1,12 +1,10 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import HomeView from "../views/HomeView.vue";
-import {
-  getAuth
-} from 'firebase/auth'
-import {
-  delay
-} from '../utils/functions'
+// import {
+//   removeObserver
+// } from '../utils/functions'
+import store from '../store/store'
 
 Vue.use(VueRouter);
 
@@ -30,7 +28,7 @@ const routes = [{
     component: () =>
       import( /* webpackChunkName: "compiler" */ "../views/PythonCompilerView.vue"),
     meta: {
-      authRequired: false, // change it to true later on
+      authRequired: true, // change it to true later on
     },
   },
   {
@@ -63,11 +61,10 @@ const router = new VueRouter({
 
 
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.authRequired)) {
-    const auth = getAuth()
-    await delay(200)
-    if (auth.currentUser) {
+    const data = store.state.currentUser
+    if (data) {
       next();
     } else {
       alert('You must be logged in to see this page');

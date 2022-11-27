@@ -1,12 +1,17 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import createPersistedState from "vuex-persistedstate"
 Vue.use(Vuex)
 
 
 const state = {
-    fileSystem: [],
-    activeFile: "",
-    activeFileContent: "",
+    fileSystem: [{
+        name: "main.py",
+        content: "print('hello from script')",
+        file: "py",
+    }],
+    activeFile: "main.py",
+    activeFileContent: "print('hello from script')",
     dependencies: [],
     currentUser: null,
     debuggerLineNumber: null,
@@ -102,7 +107,6 @@ const actions = {
         commit
     }, content) {
         commit('setActiveFileContent', content)
-        window.localStorage.setItem('fileSystem', JSON.stringify(state.fileSystem))
     },
     changeActiveFile({
         commit
@@ -132,6 +136,7 @@ const actions = {
 }
 
 export default new Vuex.Store({
+    plugins: [createPersistedState()],
     state,
     getters,
     mutations,

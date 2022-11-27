@@ -72,24 +72,6 @@ export default {
       },
     };
   },
-  mounted() {
-    let fileSystem = window.localStorage.getItem("fileSystem");
-    fileSystem = fileSystem
-      ? JSON.parse(fileSystem)
-      : [
-          {
-            name: "main.py",
-            content: "print('hello from script')",
-            file: "py",
-          },
-        ];
-
-    this.initFileSystem(fileSystem);
-    this.changeActiveFile(fileSystem[0].name);
-
-    this.fileContent = this.getActiveFileContent;
-    this.fileTitles.push(this.getActiveFile);
-  },
   methods: {
     ...mapActions([
       "changeActiveFileContent",
