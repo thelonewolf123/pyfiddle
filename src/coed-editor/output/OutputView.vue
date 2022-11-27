@@ -174,6 +174,7 @@ export default {
       "changeDebugActiveLineNumber",
       "changeActiveFile",
       "removePyDependency",
+      "initFileSystem",
     ]),
     init() {
       this.output = [];
@@ -230,29 +231,42 @@ export default {
           let packageName = e.data.packageName;
           this.removePyDependency(packageName);
         } else if (e.data.cmd === "done") {
-          this.pyodideWorker.postMessage({
-            cmd: "syncFiles",
-          });
+          // this.pyodideWorker.postMessage({
+          //   cmd: "syncFiles",
+          // });
           this.isCodeRunning = false;
           this.runWithDebugger = false;
         } else if (e.data.cmd === "syncFiles") {
           console.log(e.data.data);
+          // this.initFileSystem(e.data.data);
         }
       };
     },
-    getFileSysObject(fileSystem, activeFileName) {
+    getFileSysObject(fileSystem) {
       let fileSystemCopy = JSON.parse(JSON.stringify(fileSystem));
-      fileSystemCopy = fileSystemCopy.filter((f) => f.name !== activeFileName);
+      // fileSystemCopy = fileSystemCopy.filter((f) => f.name !== activeFileName);
       let newFileSystemObj = {
         projectFiles: [],
       };
 
-      newFileSystemObj.projectFiles = fileSystemCopy.map((f) => {
-        f.path = f.name;
-        return f;
-      });
+      newFileSystemObj.projectFiles = this.flatTree(fileSystemCopy, "/root");
 
       return newFileSystemObj;
+    },
+    flatTree(s, parent) {
+      if (s.name) {
+        result.push({
+          path: `${parent}/${s.name}`.replace("/root", ""),
+          isFolder: !s.file,
+          content: s.file ? s.content : null,
+        });
+      }
+
+      if (s.children) {
+        s.children.map((v) => {
+          flatTree(v, `${parent}/${s.name}`);
+        });
+      }
     },
     runWithDebuggerHandler() {
       this.runWithDebugger = true;
@@ -353,7 +367,7 @@ export default {
       this.debuggerHelper.resetDebugger();
       this.pyodideWorker.postMessage({
         cmd: "runCode",
-        files: this.getFileSysObject(this.getFileSystem, this.getActiveFile),
+        files: this.getFileSysObject(this.getFileSystem),
         code: this.getActiveFileContent,
       });
       this.executedFileName = this.getActiveFile;

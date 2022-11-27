@@ -3,34 +3,25 @@ import json
 engine_files = ['codeEngine.py', 'debugger.py',
                 'codeRunner.py', 'syncFiles.py']
 
-if not os.path.exists('test'):
-    os.mkdir('test')
 
-f = open('test/write.ts', 'w')
-f.write('hello, world')
-f.close()
-
-file_data_map = {}
-
-
-def fetchAllFiles(path, depth):
-
+def traverseFs(path, depth):
+    result = []
     if depth > 2:
-        return
+        return result
 
     for fileOrFolder in os.listdir(path):
         if os.path.isdir(fileOrFolder):
-            # print('folder -> ', f'{path}/{fileOrFolder}')
-            fetchAllFiles(f'{path}/{fileOrFolder}', depth + 1)
-        else:
-            # print('file -> ', f'{path}/{fileOrFolder}')
-            if fileOrFolder in engine_files:
-                continue
+            result.append({'name': fileOrFolder, 'children': traverseFs(
+                f'{path}/{fileOrFolder}', depth + 1)})
+        elif fileOrFolder not in engine_files:
             with open(f'{path}/{fileOrFolder}', 'r') as f:
                 out = ''.join(f.readlines())
-                file_data_map[f'{path}/{fileOrFolder}'] = out
+                result.append({'name': fileOrFolder, 'content': out,
+                              'file': fileOrFolder.split('.').pop()})
+
+    return result
 
 
 def getFileSystemContents():
-    fetchAllFiles('.', 0)
-    return json.dumps(file_data_map)
+    data = traverseFs('.', 0)
+    return json.dumps(data)

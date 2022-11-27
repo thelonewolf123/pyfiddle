@@ -111,15 +111,17 @@ print("Package installed -> ", "${packageName}")
 }
 
 const runCode = async (code, callBack, errorCB) => {
-    await self.pyodide.runPythonAsync(code).then(() => {
+    try {
+        await self.pyodide.runPythonAsync(code)
         if (callBack) callBack();
-    }).catch((err) => {
+        syncFiles();
+    } catch (err) {
         postMessage({
             cmd: "stderr",
             data: err
         });
         if (errorCB) errorCB();
-    });
+    }
 }
 
 const syncFiles = async () => {
