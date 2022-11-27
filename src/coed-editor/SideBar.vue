@@ -24,13 +24,6 @@ export default {
       return this.getDependencies;
     },
   },
-  mounted() {
-    let dep = window.localStorage.getItem("dependencies");
-    if (dep) {
-      let depArr = JSON.parse(dep);
-      this.initPyDependency(depArr);
-    }
-  },
   methods: {
     ...mapActions(["addPyDependency", "initPyDependency"]),
     dependencyAdded(packageName, version) {
@@ -39,10 +32,6 @@ export default {
         version: version,
         packageName: packageName,
       });
-      window.localStorage.setItem(
-        "dependencies",
-        JSON.stringify(this.dependencies)
-      );
     },
   },
 };
