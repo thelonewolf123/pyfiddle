@@ -3,6 +3,7 @@
     <files-tree-vue></files-tree-vue>
     <dependency-list-vue
       @dependencyAdded="dependencyAdded"
+      @dependencyRemoved="dependencyRemoved"
       :dependencies="dependencies"
     ></dependency-list-vue>
   </div>
@@ -25,13 +26,16 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["addPyDependency", "initPyDependency"]),
+    ...mapActions(["addPyDependency", "removePyDependency"]),
     dependencyAdded(packageName, version) {
       console.log(packageName, version);
       this.addPyDependency({
         version: version,
         packageName: packageName,
       });
+    },
+    dependencyRemoved(index) {
+      this.removePyDependency(index);
     },
   },
 };

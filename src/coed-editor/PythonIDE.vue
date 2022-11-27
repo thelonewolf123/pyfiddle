@@ -9,7 +9,7 @@
           @removeFileTitle="removeFileTitle"
         ></file-titles-vue>
         <monaco-editor-vue
-          style="width: 100%; height: calc(75vh - 140px)"
+          style="width: 100%; height: 75vh;"
           :code="fileContent"
           :language="languageMap[fileName.split('.').pop()]"
           theme="vs-dark"
@@ -95,7 +95,7 @@ export default {
 .content-area {
   display: flex;
   flex-direction: row;
-  height: calc(100vh - 64px);
+  height: 100vh;
   overflow: hidden;
 }
 

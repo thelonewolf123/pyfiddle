@@ -44,8 +44,19 @@
         <div class="dep-package-name">
           {{ dep.packageName }}
         </div>
-        <div class="dep-version">
-          {{ dep.version }}
+        <div class="version-delete-section">
+          <div class="dep-version">
+            {{ dep.version }}
+          </div>
+          <span class="delete-icon">
+            <v-icon
+              dark
+              class="pointer icon-class"
+              @click="deleteDependency(index)"
+            >
+              fa-solid fa-trash
+            </v-icon>
+          </span>
         </div>
       </div>
     </div>
@@ -68,6 +79,14 @@ export default {
       this.packageName = "";
       this.version = "latest";
       this.showDepInput = false;
+    },
+    deleteDependency(index) {
+      const result = confirm(
+        `Do you really want to delete ${this.dependencies[index].packageName}?`
+      );
+
+      if (!result) return;
+      this.$emit("dependencyRemoved", index);
     },
   },
 };
@@ -116,5 +135,11 @@ export default {
 .dep-package-name,
 .dep-version {
   padding: 5px;
+}
+
+.version-delete-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 </style>

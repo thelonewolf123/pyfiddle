@@ -82,6 +82,7 @@
             />
           </div>
         </div>
+        <div style="height: 50px"></div>
       </div>
       <LocalVariablesListVue
         v-if="runWithDebugger"
@@ -402,7 +403,6 @@ export default {
 
 <style lang="scss" scoped>
 .output-view {
-  height: calc(25vh + 40px);
   width: 100%;
   overflow: hidden;
   background: #222;

@@ -2,17 +2,7 @@
   <div id="app">
     <div class="home">
       <v-app dark>
-        <v-app-bar app>
-          <!-- -->
-          <a class="header-text url" href="/">PyFiddle</a>
-          <div class="url-links">
-            <a class="url" href="/compiler">compiler</a>
-            <a class="url" href="/about">about</a>
-            <a class="url" v-if="!currentUser" href="/login">login</a>
-            <a class="url" v-if="!currentUser" href="/signup">register</a>
-            <a class="url" v-if="currentUser" href="/logout">logout</a>
-          </div>
-        </v-app-bar>
+        <navbarComponentVue v-if="showNavbar" />
         <!-- Sizes your content based upon application components -->
         <v-main>
           <!-- Provides the application the proper gutter -->
@@ -27,10 +17,20 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+// @ is an alias to /src
+import navbarComponentVue from "@/components/navbar-component.vue";
+
 export default {
+  name: "HomeView",
+  components: {
+    navbarComponentVue,
+  },
   computed: {
-    ...mapGetters(["currentUser"]),
+    showNavbar() {
+      console.log(this.$route.path);
+      if (this.$route.path !== "/compiler") return true;
+      return false;
+    },
   },
 };
 </script>
