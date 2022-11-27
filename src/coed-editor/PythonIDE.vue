@@ -1,5 +1,6 @@
 <template>
   <div class="ide-main-content">
+    <navbarIdeVue></navbarIdeVue>
     <div class="content-area">
       <side-bar-vue style="width: 350px"></side-bar-vue>
       <div class="editor-output-view">
@@ -9,7 +10,7 @@
           @removeFileTitle="removeFileTitle"
         ></file-titles-vue>
         <monaco-editor-vue
-          style="width: 100%; height: 75vh;"
+          style="width: 100%; height: 75vh"
           :code="fileContent"
           :language="languageMap[fileName.split('.').pop()]"
           theme="vs-dark"
@@ -28,6 +29,7 @@ import MonacoEditorVue from "./MonacoEditor.vue";
 import SideBarVue from "./SideBar.vue";
 import OutputViewVue from "./output/OutputView.vue";
 import FileTitlesVue from "./side-bar/FileTitles.vue";
+import navbarIdeVue from "@/components/navbar-ide.vue";
 import { mapGetters, mapActions } from "vuex";
 
 export default {
@@ -36,6 +38,7 @@ export default {
     SideBarVue,
     OutputViewVue,
     FileTitlesVue,
+    navbarIdeVue,
   },
   computed: {
     ...mapGetters([
@@ -95,7 +98,7 @@ export default {
 .content-area {
   display: flex;
   flex-direction: row;
-  height: 100vh;
+  height: calc(100vh - 35px);
   overflow: hidden;
 }
 
@@ -109,7 +112,7 @@ export default {
 }
 
 .editor-output-view {
-  height: 100vh;
+  height: 100%;
   display: flex;
   width: 100%;
   flex-direction: column;
