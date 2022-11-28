@@ -26,8 +26,14 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="register">Register</v-btn>
+          <v-btn color="primary" @click="register" class="w-100">
+            Register
+          </v-btn>
+          <v-spacer></v-spacer>
         </v-card-actions>
+        <div class="social-login">
+          <google-login-component text="Register" />
+        </div>
       </v-card>
     </v-flex>
   </div>
@@ -35,7 +41,12 @@
 
 <script>
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import googleLoginComponent from "./google-login-btn.vue";
+
 export default {
+  components: {
+    googleLoginComponent,
+  },
   data() {
     return {
       email: "",
@@ -66,5 +77,13 @@ export default {
   align-items: center;
   height: 80vh;
   width: 100%;
+}
+
+.social-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
 }
 </style>

@@ -26,12 +26,11 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="login">Login</v-btn>
+          <v-btn color="primary" @click="login" class="w-100">Login</v-btn>
+          <v-spacer></v-spacer>
         </v-card-actions>
         <div class="social-login">
-          <v-btn color="primary" @click="loginWithGoogle">
-            Login with google
-          </v-btn>
+          <google-login-component text="Login" />
         </div>
       </v-card>
     </v-flex>
@@ -39,14 +38,12 @@
 </template>
 
 <script>
-import {
-  signInWithEmailAndPassword,
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
-
+import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import googleLoginComponent from "./google-login-btn.vue";
 export default {
+  components: {
+    googleLoginComponent,
+  },
   data() {
     return {
       email: "",
@@ -58,17 +55,6 @@ export default {
       try {
         const auth = getAuth();
         await signInWithEmailAndPassword(auth, this.email, this.password);
-        alert("Successfully logged in");
-        this.$router.push("/");
-      } catch (err) {
-        alert(err.message);
-      }
-    },
-    async loginWithGoogle() {
-      try {
-        const auth = getAuth();
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
         alert("Successfully logged in");
         this.$router.push("/");
       } catch (err) {
@@ -89,11 +75,10 @@ export default {
 }
 
 .social-login {
-  padding-top: 20px;
-  padding-bottom: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 10px;
 }
 </style>

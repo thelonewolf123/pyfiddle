@@ -54,4 +54,8 @@ body {
   text-decoration: none;
   color: gainsboro !important;
 }
+
+.w-100 {
+  width: 100%;
+}
 </style>
