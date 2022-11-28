@@ -8,7 +8,7 @@ import {
 import vuetify from '@/plugins/vuetify' // path to vuetify export
 import store from './store/store'
 import Notifications from 'vue-notification'
-
+import "vuetify/dist/vuetify.min.css";
 
 Vue.config.productionTip = false;
 
