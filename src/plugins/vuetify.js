@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify/lib'
-import '@mdi/font/css/materialdesignicons.css' 
+import '@mdi/font/css/materialdesignicons.css'
+import "vuetify/dist/vuetify.min.css"
 
 Vue.use(Vuetify)
 
@@ -8,7 +9,9 @@ const opts = {
     icons: {
         iconfont: 'mdi', // default - only for display purposes
     },
-    theme: { dark: true },
+    theme: {
+        dark: true
+    },
 }
 
 export default new Vuetify(opts)
