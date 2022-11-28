@@ -14,6 +14,7 @@ import store from '../store/store'
 const firebaseConfig = {
     apiKey: "AIzaSyDGEw4n-LmSKmDStFY-D5JnfcVqI_lDGgM",
     authDomain: "pyfiddle-dacc5.firebaseapp.com",
+    // authDomain: "",
     projectId: "pyfiddle-dacc5",
     storageBucket: "pyfiddle-dacc5.appspot.com",
     messagingSenderId: "243126926397",

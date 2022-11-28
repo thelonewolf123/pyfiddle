@@ -28,13 +28,23 @@
           <v-spacer></v-spacer>
           <v-btn color="primary" @click="login">Login</v-btn>
         </v-card-actions>
+        <div class="social-login">
+          <v-btn color="primary" @click="loginWithGoogle">
+            Login with google
+          </v-btn>
+        </div>
       </v-card>
     </v-flex>
   </div>
 </template>
 
 <script>
-import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 
 export default {
   data() {
@@ -54,6 +64,17 @@ export default {
         alert(err.message);
       }
     },
+    async loginWithGoogle() {
+      try {
+        const auth = getAuth();
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        alert("Successfully logged in");
+        this.$router.push("/");
+      } catch (err) {
+        alert(err.message);
+      }
+    },
   },
 };
 </script>
@@ -65,5 +86,14 @@ export default {
   align-items: center;
   height: 80vh;
   width: 100%;
+}
+
+.social-login {
+  padding-top: 20px;
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 </style>
