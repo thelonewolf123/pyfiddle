@@ -107,6 +107,7 @@ export default {
   data() {
     return {
       output: [],
+      result: [],
       showInput: false,
       inputValue: "",
       pdbState: 0,
@@ -242,29 +243,22 @@ export default {
         }
       };
     },
-    getFileSysObject(fileSystem) {
-      let fileSystemCopy = JSON.parse(JSON.stringify(fileSystem));
-      // fileSystemCopy = fileSystemCopy.filter((f) => f.name !== activeFileName);
-      let newFileSystemObj = {
-        projectFiles: [],
-      };
-
-      newFileSystemObj.projectFiles = this.flatTree(fileSystemCopy, "/root");
-
-      return newFileSystemObj;
-    },
     flatTree(s, parent) {
+      console.log(s, this.result);
       if (s.name) {
-        result.push({
-          path: `${parent}/${s.name}`.replace("/root", ""),
+        console.log(s.name, parent);
+        this.result.push({
+          path: `${parent}/${s.name}`.replace("/root/", "/home/pyodide"),
           isFolder: !s.file,
+          name: s.name,
           content: s.file ? s.content : null,
         });
       }
 
       if (s.children) {
         s.children.map((v) => {
-          flatTree(v, `${parent}/${s.name}`);
+          this.flatTree(v, `${parent}/${s.name}`);
+          console.log(v, s.name);
         });
       }
     },
@@ -365,9 +359,12 @@ export default {
       // Run code in worker.
       console.log("Running code in worker...");
       this.debuggerHelper.resetDebugger();
+      this.flatTree({ children: this.getFileSystem, name: "" }, "/root");
       this.pyodideWorker.postMessage({
         cmd: "runCode",
-        files: this.getFileSysObject(this.getFileSystem),
+        files: {
+          projectFiles: this.result || [],
+        },
         code: this.getActiveFileContent,
       });
       this.executedFileName = this.getActiveFile;

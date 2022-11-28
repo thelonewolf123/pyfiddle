@@ -84,6 +84,7 @@ const done = () => {
 
 const runCodeFromFileSysObj = async (files) => {
     let codeRunner = self.pyodide.pyimport("codeRunner");
+    console.log(files)
     codeRunner.runCode(JSON.stringify(files));
 }
 
@@ -127,7 +128,6 @@ const runCode = async (code, callBack, errorCB) => {
 const syncFiles = async () => {
     const fileSyncService = self.pyodide.pyimport("syncFiles");
     const result = fileSyncService.getFileSystemContents();
-    console.log(result)
     postMessage({
         cmd: "syncFiles",
         data: JSON.parse(result)
