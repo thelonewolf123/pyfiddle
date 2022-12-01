@@ -14,7 +14,7 @@
     ],
     "headers": [
       {
-        "source": "/.*",
+        "regex": "/.*",
         "headers": [
           {
             "key": "Access-Control-Allow-Origin",
