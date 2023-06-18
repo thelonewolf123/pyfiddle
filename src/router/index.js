@@ -27,30 +27,7 @@ const routes = [{
     name: "compiler",
     component: () =>
       import( /* webpackChunkName: "compiler" */ "../views/PythonCompilerView.vue"),
-    meta: {
-      authRequired: true, // change it to true later on
-    },
-  },
-  {
-    path: "/login",
-    name: "login",
-    component: () =>
-      import( /* webpackChunkName: "login" */ "../user/login-component.vue"),
-  },
-  {
-    path: "/signup",
-    name: "signup",
-    component: () =>
-      import( /* webpackChunkName: "signup" */ "../user/register-component.vue"),
-  }, {
-    path: "/logout",
-    name: "logout",
-    component: () =>
-      import( /* webpackChunkName: "logout" */ "../user/logout-component.vue"),
-    meta: {
-      authRequired: true, // change it to true later on
-    },
-  },
+  }
 ];
 
 const router = new VueRouter({

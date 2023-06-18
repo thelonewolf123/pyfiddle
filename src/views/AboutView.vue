@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <div class="about">
-      <h1 id="pyfiddle---stackblitz-for-python">
-        PyFiddle - Stackblitz for Python
+      <h1 id="pyfiddle---JsFiddle-for-python">
+        PyFiddle - JsFiddle for Python
       </h1>
       <p>
         <a href="https://pyfiddle.vercel.app/compiler">PyFiddle</a> is a python
@@ -114,7 +114,7 @@ print(f&#39;Result -&gt; {b}&#39;)
       <ul>
         <li>
           The project is nowhere near completion so there might be some bugs or
-          incomplete features, and I’m building it in my spare time.
+          incomplete features, and I'm building it in my spare time.
         </li>
         <li>
           If anyone wanna use the debugger in pyfiddle, use breakpoint()
